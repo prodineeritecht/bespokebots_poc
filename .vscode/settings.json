@@ -1,0 +1,10 @@
+{
+    "python.autoComplete.extraPaths": [
+
+    ],
+    "python.analysis.extraPaths": [],
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "\"[python]\": {\"editor.formatOnPaste\": false, \"editor.formatOnSaveMode\": \"file\"}."
+    ]
+}

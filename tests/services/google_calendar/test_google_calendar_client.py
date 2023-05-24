@@ -2,11 +2,14 @@ import pytest
 from unittest.mock import patch
 from unittest.mock import Mock
 import datetime
-from bespokebots.services.google_calendar.google_calendar_entry import GoogleCalendarEntry
-from bespokebots.services.google_calendar.google_calendar_instance import GoogleCalendarInstance   
-from bespokebots.services.google_calendar.google_calendar_client import GoogleCalendarClient
-from bespokebots.services.google_calendar.google_calendar_busy_entry import GoogleCalendarBusyEntry
-from bespokebots.services.google_calendar.google_calendar_event import GoogleCalendarEvent
+from bespokebots.services.google_calendar import (
+    GoogleCalendarEntry,
+    GoogleCalendarInstance,
+    GoogleCalendarClient,
+    GoogleCalendarBusyEntry,
+    GoogleCalendarEvent
+)
+
 from zoneinfo import ZoneInfo
 
 #These tests are not very good, but, they serve as as starting point!

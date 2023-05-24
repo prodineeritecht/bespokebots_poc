@@ -7,10 +7,11 @@ from zoneinfo import ZoneInfo
 from dateutil.parser import parse
 import json
 import pickle
-from bespokebots.services.google_calendar.google_calendar_entry import GoogleCalendarEntry
-from bespokebots.services.google_calendar.google_calendar_instance import GoogleCalendarInstance   
 from bespokebots.services.google_calendar.google_calendar_busy_entry import GoogleCalendarBusyEntry
+from bespokebots.services.google_calendar.google_calendar_entry import GoogleCalendarEntry
+from bespokebots.services.google_calendar.google_calendar_instance import GoogleCalendarInstance
 from bespokebots.services.google_calendar.google_calendar_event import GoogleCalendarEvent
+
 
 class GoogleCalendarClient:
     def __init__(self, credentials_file, scopes):

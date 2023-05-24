@@ -1,11 +1,15 @@
 # conftest.py
-import pytest
+import datetime
 import json
 import os
-import datetime
 from zoneinfo import ZoneInfo
-from bespokebots.services.google_calendar.google_calendar_client import GoogleCalendarClient
-from bespokebots.services.google_calendar.google_calendar_event import GoogleCalendarEvent
+
+import pytest
+
+from bespokebots.services.google_calendar import (
+    GoogleCalendarClient
+)
+    
 
 
 @pytest.fixture

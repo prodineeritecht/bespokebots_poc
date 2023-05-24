@@ -1,11 +1,11 @@
 import os
-from flask import Flask
-from flask import jsonify
+
+from flask import Flask, jsonify
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
-from bespokebots.services.google_calendar.google_calendar_client import GoogleCalendarClient
- 
 
+from bespokebots.services.google_calendar.google_calendar_client import \
+    GoogleCalendarClient
 
 # Create a Flask web server from the 'app' module name
 flask_app = Flask(__name__)
