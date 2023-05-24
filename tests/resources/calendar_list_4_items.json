@@ -1,0 +1,107 @@
+{
+    "kind": "calendar#calendarList",
+    "etag": "\"p324bf3eiirvvs0g\"",
+    "nextSyncToken": "CIi3jdKW__4CEhZyb2J3aGl0ZXN0b25AZ21haWwuY29t",
+    "items": [
+    {
+        "kind": "calendar#calendarListEntry",
+        "etag": "\"1503502289338000\"",
+        "id": "robwhiteston@gmail.com",
+        "summary": "robwhiteston@gmail.com",
+        "timeZone": "America/New_York",
+        "colorId": "17",
+        "backgroundColor": "#9a9cff",
+        "foregroundColor": "#000000",
+        "selected": "true",
+        "accessRole": "owner",
+        "defaultReminders": [
+            {
+                "method": "popup",
+                "minutes": 30
+            }
+        ],
+        "notificationSettings": {
+            "notifications": [
+                {
+                    "type": "eventCreation",
+                    "method": "email"
+                },
+                {
+                    "type": "eventChange",
+                    "method": "email"
+                },
+                {
+                    "type": "eventCancellation",
+                    "method": "email"
+                },
+                {
+                    "type": "eventResponse",
+                    "method": "email"
+                }
+            ]
+        },
+        "primary": "true",
+        "conferenceProperties": {
+            "allowedConferenceSolutionTypes": [
+                "hangoutsMeet"
+            ]
+        }
+    },
+    {
+        "kind": "calendar#calendarListEntry",
+        "etag": "\"1668478878679000\"",
+        "id": "addressbook#contacts@group.v.calendar.google.com",
+        "summary": "Birthdays",
+        "description": "Displays birthdays, anniversaries, and other event dates of people in Google Contacts.",
+        "timeZone": "America/New_York",
+        "colorId": "2",
+        "backgroundColor": "#d06b64",
+        "foregroundColor": "#000000",
+        "accessRole": "reader",
+        "defaultReminders": [],
+        "conferenceProperties": {
+            "allowedConferenceSolutionTypes": [
+                "hangoutsMeet"
+            ]
+        }
+    },
+    {
+        "kind": "calendar#calendarListEntry",
+        "etag": "\"1668479625578000\"",
+        "id": "6b0a4c7db800842954eee1bcc6386fdc75c8caaed455ee648ceef9af00f4ea3a@group.calendar.google.com",
+        "summary": "Cash Flow",
+        "description": "Important money dates",
+        "timeZone": "America/New_York",
+        "colorId": "24",
+        "backgroundColor": "#a47ae2",
+        "foregroundColor": "#000000",
+        "selected": "true",
+        "accessRole": "owner",
+        "defaultReminders": [],
+        "conferenceProperties": {
+            "allowedConferenceSolutionTypes": [
+                "hangoutsMeet"
+            ]
+        }
+    },
+    {
+        "kind": "calendar#calendarListEntry",
+        "etag": "\"1669858870024000\"",
+        "id": "en.usa#holiday@group.v.calendar.google.com",
+        "summary": "Holidays in United States",
+        "description": "Holidays and Observances in United States",
+        "timeZone": "America/New_York",
+        "colorId": "23",
+        "backgroundColor": "#cd74e6",
+        "foregroundColor": "#000000",
+        "selected": "true",
+        "accessRole": "reader",
+        "defaultReminders": [],
+        "conferenceProperties": {
+            "allowedConferenceSolutionTypes": [
+                "hangoutsMeet"
+            ]
+        }
+    }
+    ]
+}

@@ -1,0 +1,403 @@
+{
+    "kind": "calendar#events",
+    "etag": "\"p324bf3eiirvvs0g\"",
+    "summary": "robwhiteston@gmail.com",
+    "updated": "2023-05-18T15:25:31.781Z",
+    "timeZone": "America/New_York",
+    "accessRole": "owner",
+    "defaultReminders": [
+        {
+            "method": "popup",
+            "minutes": 30
+        }
+    ],
+    "items": [
+        {
+            "kind": "calendar#event",
+            "etag": "\"3336960159460000\"",
+            "id": "48hdmqq2i76bg3dskilm66n1vj_20230519",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NDhoZG1xcTJpNzZiZzNkc2tpbG02Nm4xdmpfMjAyMzA1MTkgcm9id2hpdGVzdG9uQG0",
+            "created": "2022-11-15T02:37:36.000Z",
+            "updated": "2022-11-15T02:41:19.730Z",
+            "summary": "AT&T Autopay - Bofa",
+            "colorId": "11",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "date": "2023-05-19"
+            },
+            "end": {
+                "date": "2023-05-20"
+            },
+            "recurringEventId": "48hdmqq2i76bg3dskilm66n1vj",
+            "originalStartTime": {
+                "date": "2023-05-19"
+            },
+            "transparency": "transparent",
+            "iCalUID": "48hdmqq2i76bg3dskilm66n1vj@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 30
+                    }
+                ]
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3368843304030000\"",
+            "id": "6tukcd7qohtrijv8kic8limlvk_20230519",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NnR1a2NkN3FvaHRyaWp2OGtpYzhsaW1sdmtfMjAyMzA1MTkgcm9id2hpdGVzdG9uQG0",
+            "created": "2023-05-06T22:43:43.000Z",
+            "updated": "2023-05-18T14:54:12.015Z",
+            "summary": "Kids with me",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "date": "2023-05-19"
+            },
+            "end": {
+                "date": "2023-05-27"
+            },
+            "recurringEventId": "6tukcd7qohtrijv8kic8limlvk",
+            "originalStartTime": {
+                "date": "2023-05-19"
+            },
+            "iCalUID": "6tukcd7qohtrijv8kic8limlvk@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 30
+                    }
+                ]
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3368847063562000\"",
+            "id": "nobhu9luc45b2n477h1f08fdms",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=bm9iaHU5bHVjNDViMm40NzdoMWYwOGZkbXMgcm9id2hpdGVzdG9uQG0",
+            "created": "2023-05-16T17:40:48.000Z",
+            "updated": "2023-05-18T15:25:31.781Z",
+            "summary": "Rob Whiteston and Jessica Loy",
+            "description": "Event Name: Recruiter Screen - Above Lending\n\nLocation: This is a Google Meet web conference.\nYou can join this meeting from your computer, tablet, or smartphone.\nhttps://calendly.com/events/7e707511-d910-4c3f-b254-5c692cae0ec4/google_meet\n\nWhat is the title of the role you are interviewing for?: Senior Engineer\n\nWhat is your phone number?: 2404048915\n\nNeed to make changes to this event?\nCancel: https://calendly.com/cancellations/261aa438-6270-409b-ae87-1a978bca5e34\nReschedule: https://calendly.com/reschedulings/261aa438-6270-409b-ae87-1a978bca5e34\n\nPowered by Calendly.com\n",
+            "location": "Google Meet (instructions in description)",
+            "creator": {
+                "email": "jessica.loy@abovelending.com"
+            },
+            "organizer": {
+                "email": "jessica.loy@abovelending.com"
+            },
+            "start": {
+                "dateTime": "2023-05-19T15:00:00-04:00",
+                "timeZone": "America/Chicago"
+            },
+            "end": {
+                "dateTime": "2023-05-19T15:30:00-04:00",
+                "timeZone": "America/Chicago"
+            },
+            "iCalUID": "nobhu9luc45b2n477h1f08fdms@google.com",
+            "sequence": 1,
+            "attendees": [
+                {
+                    "email": "robwhiteston@gmail.com",
+                    "self": true,
+                    "responseStatus": "accepted"
+                },
+                {
+                    "email": "jessica.loy@abovelending.com",
+                    "organizer": true,
+                    "responseStatus": "accepted"
+                }
+            ],
+            "hangoutLink": "https://meet.google.com/gqt-smcz-bes",
+            "conferenceData": {
+                "createRequest": {
+                    "requestId": "c621185b-228a-432a-bb6d-ac328cb13d88",
+                    "conferenceSolutionKey": {
+                        "type": "hangoutsMeet"
+                    },
+                    "status": {
+                        "statusCode": "success"
+                    }
+                },
+                "entryPoints": [
+                    {
+                        "entryPointType": "video",
+                        "uri": "https://meet.google.com/gqt-smcz-bes",
+                        "label": "meet.google.com/gqt-smcz-bes"
+                    },
+                    {
+                        "entryPointType": "more",
+                        "uri": "https://tel.meet/gqt-smcz-bes?pin=9571191848256",
+                        "pin": "9571191848256"
+                    },
+                    {
+                        "regionCode": "US",
+                        "entryPointType": "phone",
+                        "uri": "tel:+1-786-886-2464",
+                        "label": "+1 786-886-2464",
+                        "pin": "418672689"
+                    }
+                ],
+                "conferenceSolution": {
+                    "key": {
+                        "type": "hangoutsMeet"
+                    },
+                    "name": "Google Meet",
+                    "iconUri": "https://fonts.gstatic.com/s/i/productlogos/meet_2020q4/v6/web-512dp/logo_meet_2020q4_color_2x_web_512dp.png"
+                },
+                "conferenceId": "gqt-smcz-bes"
+            },
+            "reminders": {
+                "useDefault": true
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3337998389616000\"",
+            "id": "11n4ocn95b3bnr5lgfocjumvpd_20230521",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=MTFuNG9jbjk1YjNibnI1bGdmb2NqdW12cGRfMjAyMzA1MjEgcm9id2hpdGVzdG9uQG0",
+            "created": "2022-11-15T02:41:05.000Z",
+            "updated": "2022-11-21T02:53:14.808Z",
+            "summary": "Spectrum Autopay - Bofa",
+            "colorId": "11",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "date": "2023-05-21"
+            },
+            "end": {
+                "date": "2023-05-22"
+            },
+            "recurringEventId": "11n4ocn95b3bnr5lgfocjumvpd",
+            "originalStartTime": {
+                "date": "2023-05-21"
+            },
+            "transparency": "transparent",
+            "iCalUID": "11n4ocn95b3bnr5lgfocjumvpd@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 30
+                    }
+                ]
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3339349037330000\"",
+            "id": "2v1f27p1atq4ka5703qrhki80j_20230522",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=MnYxZjI3cDFhdHE0a2E1NzAzcXJoa2k4MGpfMjAyMzA1MjIgcm9id2hpdGVzdG9uQG0",
+            "created": "2022-11-15T02:29:01.000Z",
+            "updated": "2022-11-28T22:28:38.665Z",
+            "summary": "Electric Bill Due",
+            "colorId": "11",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "date": "2023-05-22"
+            },
+            "end": {
+                "date": "2023-05-23"
+            },
+            "recurringEventId": "2v1f27p1atq4ka5703qrhki80j",
+            "originalStartTime": {
+                "date": "2023-05-22"
+            },
+            "transparency": "transparent",
+            "iCalUID": "2v1f27p1atq4ka5703qrhki80j@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 30
+                    }
+                ]
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3368665550544000\"",
+            "id": "mrpcta6s9jnupcmhsc1pc1h0gg",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=bXJwY3RhNnM5am51cGNtaHNjMXBjMWgwZ2cgcm9id2hpdGVzdG9uQG0",
+            "created": "2023-05-17T14:12:55.000Z",
+            "updated": "2023-05-17T14:12:55.272Z",
+            "summary": "Absolute Chiro",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2023-05-22T09:00:00-04:00",
+                "timeZone": "America/New_York"
+            },
+            "end": {
+                "dateTime": "2023-05-22T10:00:00-04:00",
+                "timeZone": "America/New_York"
+            },
+            "iCalUID": "mrpcta6s9jnupcmhsc1pc1h0gg@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3349222764250000\"",
+            "id": "7lb38mf6pm21gvb5v5cttja7fg_20230523",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=N2xiMzhtZjZwbTIxZ3ZiNXY1Y3R0amE3ZmdfMjAyMzA1MjMgcm9id2hpdGVzdG9uQG0",
+            "created": "2022-11-15T02:36:12.000Z",
+            "updated": "2023-01-25T01:49:42.125Z",
+            "summary": "Unitil Autopay - Bofa",
+            "colorId": "11",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "date": "2023-05-23"
+            },
+            "end": {
+                "date": "2023-05-24"
+            },
+            "recurringEventId": "7lb38mf6pm21gvb5v5cttja7fg",
+            "originalStartTime": {
+                "date": "2023-05-23"
+            },
+            "transparency": "transparent",
+            "iCalUID": "7lb38mf6pm21gvb5v5cttja7fg@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 30
+                    }
+                ]
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3368665625966000\"",
+            "id": "77ctd6hce7su21rscvnj5a94pc",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NzdjdGQ2aGNlN3N1MjFyc2N2bmo1YTk0cGMgcm9id2hpdGVzdG9uQG0",
+            "created": "2023-05-17T14:13:32.000Z",
+            "updated": "2023-05-17T14:13:32.983Z",
+            "summary": "AbsoluteChiro (40m)",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2023-05-23T15:00:00-04:00",
+                "timeZone": "America/New_York"
+            },
+            "end": {
+                "dateTime": "2023-05-23T16:00:00-04:00",
+                "timeZone": "America/New_York"
+            },
+            "iCalUID": "77ctd6hce7su21rscvnj5a94pc@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            },
+            "eventType": "default"
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3368665680798000\"",
+            "id": "r32468vmlncv60b5cvc1furmn0",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=cjMyNDY4dm1sbmN2NjBiNWN2YzFmdXJtbjAgcm9id2hpdGVzdG9uQG0",
+            "created": "2023-05-17T14:14:00.000Z",
+            "updated": "2023-05-17T14:14:00.399Z",
+            "summary": "Absolute Chiro",
+            "creator": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "robwhiteston@gmail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2023-05-24T09:00:00-04:00",
+                "timeZone": "America/New_York"
+            },
+            "end": {
+                "dateTime": "2023-05-24T10:00:00-04:00",
+                "timeZone": "America/New_York"
+            },
+            "iCalUID": "r32468vmlncv60b5cvc1furmn0@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            },
+            "eventType": "default"
+        }
+    ]
+}
