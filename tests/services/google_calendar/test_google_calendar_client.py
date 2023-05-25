@@ -3,10 +3,7 @@ from unittest.mock import patch
 from unittest.mock import Mock
 import datetime
 from bespokebots.services.google_calendar import (
-    GoogleCalendarEntry,
-    GoogleCalendarInstance,
     GoogleCalendarClient,
-    GoogleCalendarBusyEntry,
     GoogleCalendarEvent
 )
 

@@ -7,10 +7,18 @@ from zoneinfo import ZoneInfo
 from dateutil.parser import parse
 import json
 import pickle
-from bespokebots.services.google_calendar.google_calendar_busy_entry import GoogleCalendarBusyEntry
-from bespokebots.services.google_calendar.google_calendar_entry import GoogleCalendarEntry
-from bespokebots.services.google_calendar.google_calendar_instance import GoogleCalendarInstance
-from bespokebots.services.google_calendar.google_calendar_event import GoogleCalendarEvent
+from bespokebots.services.google_calendar.google_calendar_busy_entry import (
+    GoogleCalendarBusyEntry,
+)
+from bespokebots.services.google_calendar.google_calendar_entry import (
+    GoogleCalendarEntry,
+)
+from bespokebots.services.google_calendar.google_calendar_instance import (
+    GoogleCalendarInstance,
+)
+from bespokebots.services.google_calendar.google_calendar_event import (
+    GoogleCalendarEvent,
+)
 
 
 class GoogleCalendarClient:
@@ -22,7 +30,7 @@ class GoogleCalendarClient:
         self.calendar_list = []
 
     def authenticate(self):
-        if os.path.exists('token.json'):
+        if os.path.exists("token.json"):
             self.creds = self._load_credentials()
             self._build_service()
 
@@ -32,77 +40,37 @@ class GoogleCalendarClient:
                 self.creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    self.credentials_file, self.scopes)
+                    self.credentials_file, self.scopes
+                )
                 self.creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             self._save_credentials()
-            #build the service
+            # build the service
             self._build_service()
 
     def _load_credentials(self):
-        return self._load_from_file('token.json')
+        return self._load_from_file("token.json")
 
     def _save_credentials(self):
-        self._save_to_file('token.json', self.creds)
+        self._save_to_file("token.json", self.creds)
 
     def _load_from_file(self, filename):
-        with open(filename, 'rb') as token:
+        with open(filename, "rb") as token:
             return pickle.load(token)
 
     def _save_to_file(self, filename, data):
-        with open(filename, 'wb') as token:
+        with open(filename, "wb") as token:
             pickle.dump(data, token)
 
     def _build_service(self):
-        self.service = build('calendar', 'v3', credentials=self.creds)
+        self.service = build("calendar", "v3", credentials=self.creds)
 
     def get_service(self):
         if not self.service:
             self._build_service()
         return self.service
-    
 
-
-    def free_time_calculator(self,start_time, end_time, busy_intervals, calendar_id):
-        
-        # seems like a good idea to convert the list of json objects to a list of tuples
-        _busy_intervals = [(busy["start"], busy["end"]) for busy in busy_intervals]
-        
-        # Create a list of free time intervals
-        free_time_intervals = [GoogleCalendarFreeTimeInterval(start_time, end_time, calendar_id)]
-
-        # For each busy interval...
-        for busy_start, busy_end in _busy_intervals:
-            # ... find which free intervals it overlaps with
-            i = 0
-            while i < len(free_time_intervals):
-                free_time = free_time_intervals[i]
-                free_start = free_time.start
-                free_end = free_time.end
-                if busy_start <= free_end or busy_end >= free_start:
-                    # The busy interval overlaps with this free interval, so we need to adjust it
-                    if busy_start > free_start and busy_end < free_end:
-                        # The busy interval is fully within the free interval, so we split it into two
-                        free_time_intervals[i] = GoogleCalendarFreeTimeInterval(free_start, busy_start, calendar_id)
-                        free_time_intervals.insert(i + 1, GoogleCalendarFreeTimeInterval(busy_end, free_end, calendar_id))
-                        i += 2
-                        continue
-                    elif busy_start <= free_start and busy_end >= free_end:
-                        # The busy interval fully covers the free interval, so we remove it
-                        del free_time_intervals[i]
-                        continue
-                    elif busy_start > free_start:
-                        # The busy interval overlaps the end of the free interval, so we adjust the end time
-                        free_time_intervals[i] = GoogleCalendarFreeTimeInterval(free_start, busy_start, calendar_id)
-                    elif busy_end < free_end:
-                        # The busy interval overlaps the start of the free interval, so we adjust the start time
-                        free_time_intervals[i] = GoogleCalendarFreeTimeInterval(busy_end, free_end, calendar_id)
-                i += 1
-        return free_time_intervals
-
-    
-
-    #Functions related to working with the GCal API
+    # Functions related to working with the GCal API
     def get_calendar_list(self) -> list[GoogleCalendarInstance]:
         """Retrieve a list of calendars"""
         self.calendar_list = self.service.calendarList().list().execute()
@@ -116,33 +84,55 @@ class GoogleCalendarClient:
 
         return calendars
 
-    def get_calendar_events(self, calendar_id=None, start_date=None, end_date=None) -> list[GoogleCalendarEntry]:
+    def get_calendar_events(
+        self, calendar_id=None, start_date=None, end_date=None
+    ) -> list[GoogleCalendarEntry]:
         """Retrieve events from a calendar between two dates"""
-        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-        
-        _calendar, _start_date, _end_date = self._validate_calendar_inputs(calendar_id, start_date, end_date, now)
+        now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
 
-        events_result = self.service.events().list(calendarId=_calendar, timeMin=_start_date, timeMax=_end_date,
-                                            maxResults=100, singleEvents=True, orderBy='startTime').execute()
+        _calendar, _start_date, _end_date = self._validate_calendar_inputs(
+            calendar_id, start_date, end_date, now
+        )
+
+        events_result = (
+            self.service.events()
+            .list(
+                calendarId=_calendar,
+                timeMin=_start_date,
+                timeMax=_end_date,
+                maxResults=100,
+                singleEvents=True,
+                orderBy="startTime",
+            )
+            .execute()
+        )
         # json_events = json.dumps(events_result, indent=4)
         # print(json_events)
-        events = events_result.get('items', [])
+        events = events_result.get("items", [])
 
         if not events:
             return None
-        
+
         # Prep the party list, broh
         event_summaries = []
         for event in events:
             # Look at all that juicy event data. Let's pull it out.
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            end = event['end'].get('dateTime', event['end'].get('date'))
-            attendees = [att['email'] for att in event.get('attendees', [])]  # Watch out for events with no attendees
+            start = event["start"].get("dateTime", event["start"].get("date"))
+            end = event["end"].get("dateTime", event["end"].get("date"))
+            attendees = [
+                att["email"] for att in event.get("attendees", [])
+            ]  # Watch out for events with no attendees
 
             # Alright, let's make a new guest for our party
-            new_entry = GoogleCalendarEntry(title=event['summary'], start=start, end=end,
-                                            description=event.get('description', ''), summary=event.get('summary', ''),
-                                            location=event.get('location', ''), attendees=attendees)
+            new_entry = GoogleCalendarEntry(
+                title=event["summary"],
+                start=start,
+                end=end,
+                description=event.get("description", ""),
+                summary=event.get("summary", ""),
+                location=event.get("location", ""),
+                attendees=attendees,
+            )
 
             # And add 'em to the list!
             event_summaries.append(new_entry)
@@ -151,80 +141,107 @@ class GoogleCalendarClient:
 
     def get_event(self, calendar_id, event_id):
         """Retrieve a single event from a calendar"""
-        event = self.service.events().get(calendarId=calendar_id, eventId=event_id).execute()
+        event = (
+            self.service.events()
+            .get(calendarId=calendar_id, eventId=event_id)
+            .execute()
+        )
         return event
 
-    def get_busy_time(self, calendar_id=None, start_date=None, end_date=None) -> list[GoogleCalendarBusyEntry]:
+    def get_busy_time(
+        self, calendar_id=None, start_date=None, end_date=None
+    ) -> list[GoogleCalendarBusyEntry]:
         """Retrieve busy time from a calendar between two dates"""
-        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-        
-        _calendar, _start_date, _end_date = self._validate_calendar_inputs(calendar_id, start_date, end_date, now)
-    
+        now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
+
+        _calendar, _start_date, _end_date = self._validate_calendar_inputs(
+            calendar_id, start_date, end_date, now
+        )
+
         query_body = {
             "timeMin": _start_date,
             "timeMax": _end_date,
             "timeZone": "America/New_York",
-            "items": [
-                {   
-                    "id": _calendar
-                }
-            ]
+            "items": [{"id": _calendar}],
         }
-        
+
         events_result = self.service.freebusy().query(body=query_body).execute()
 
         json_events = json.dumps(events_result, indent=4)
         print(json_events)
 
-        #Freebusy events will be objects with the following structure:
+        # Freebusy events will be objects with the following structure:
         # {
         #    start: datetime,
         #    end: datetime
         # }
-        busy_events = events_result.get('calendars', {calendar_id}).get(_calendar, {}).get('busy', [])
+        busy_events = (
+            events_result.get("calendars", {calendar_id})
+            .get(_calendar, {})
+            .get("busy", [])
+        )
         busy_entries = []
         for event in busy_events:
-            busy_entries.append(GoogleCalendarBusyEntry(parse(event['start']), parse(event['end']), calendar_id))   
-        
+            busy_entries.append(
+                GoogleCalendarBusyEntry(
+                    parse(event["start"]), parse(event["end"]), calendar_id
+                )
+            )
+
         return busy_entries
-        
 
     def create_event(self, calendar_id, event: GoogleCalendarEvent):
         """Creates a new event on a user's calendar"""
-        
-        event_body = event.build() #Serializes the GoogleCalendarEvent object into a JSON object
-        response = self.service.events().insert(calendarId=calendar_id, body=event_body).execute()
+
+        event_body = (
+            event.build()
+        )  # Serializes the GoogleCalendarEvent object into a JSON object
+        response = (
+            self.service.events()
+            .insert(calendarId=calendar_id, body=event_body)
+            .execute()
+        )
         return response
-    
+
     def delete_event(self, calendar_id, event_id):
         """Deletes an event from a user's calendar"""
-        response = self.service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
+        response = (
+            self.service.events()
+            .delete(calendarId=calendar_id, eventId=event_id)
+            .execute()
+        )
         return response
 
     def update_event(self, calendar_id, event):
         """Updates an event on a user's calendar"""
-        event_id = event.get('id')
-        response = self.service.events().update(calendarId=calendar_id, eventId=event_id, body=event).execute()
+        event_id = event.get("id")
+        response = (
+            self.service.events()
+            .update(calendarId=calendar_id, eventId=event_id, body=event)
+            .execute()
+        )
         return response
-    
-    
-    
-    def _validate_calendar_inputs(self, calendar_id, start_date, end_date, now, tz=ZoneInfo('America/New_York')):
+
+    def _validate_calendar_inputs(
+        self, calendar_id, start_date, end_date, now, tz=ZoneInfo("America/New_York")
+    ):
         if not calendar_id:
-            #just use the primary calendar
-            _calendar = 'primary'
+            # just use the primary calendar
+            _calendar = "primary"
         else:
             _calendar = calendar_id
 
-        #If the start date wasn't provided, use today as the start date
+        # If the start date wasn't provided, use today as the start date
         if not start_date:
             _start_date = now
         else:
             _start_date = start_date
 
-        #If the end date wasn't provided, use a week from today as the end date
+        # If the end date wasn't provided, use a week from today as the end date
         if not end_date:
-            _end_date = (datetime.datetime.now(tz=tz) + datetime.timedelta(days=7)).isoformat()
+            _end_date = (
+                datetime.datetime.now(tz=tz) + datetime.timedelta(days=7)
+            ).isoformat()
         else:
             _end_date = end_date
-        return _calendar,_start_date,_end_date
+        return _calendar, _start_date, _end_date

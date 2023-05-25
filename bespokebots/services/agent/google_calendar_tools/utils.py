@@ -10,12 +10,10 @@ from bespokebots.services.google_calendar import (
     GoogleCalendarEvent
 )
 
-if TYPE_CHECKING:
-    from google.auth.transport.requests import Request
-    from google.oauth2.credentials import Credentials
-    from google_auth_oauthlib.flow import InstalledAppFlow
-    from googleapiclient.discovery import Resource
-    from googleapiclient.discovery import build as build_resource
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build as build_resource
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +60,16 @@ def import_google_auth_credentials() -> Credentials:
         )
     return Credentials
 
+def import_googleapiclient_resource_builder() -> build_resource:
+    try:
+        from googleapiclient.discovery import build
+    except ImportError:
+        raise ValueError(
+            "You need to install googleapiclient to use this toolkit. "
+            "Try running pip install --upgrade google-api-python-client"
+        )
+    return build
+
 DEFAULT_SCOPES = ['https://www.googleapis.com/auth/calendar']
 DEFAULT_CREDS_TOKEN_FILE = "../../../../token.json"
 DEFAULT_CLIENT_SECRETS_FILE = "../../../../credentials.json"
@@ -70,6 +78,12 @@ DEFAULT_CLIENT_SECRETS_FILE = "../../../../credentials.json"
 def build_calendar_client(credentials: Optional[Credentials] = None,
                           scopes: Optional[List[str]] = None) -> GoogleCalendarClient:
     """Build a Google Calendar client."""
+
+    # Import the necessary modules
+    InstalledAppFlow = import_google_auth_oauthlib_flow()
+    Credentials, Request = import_google_auth()
     credentials = credentials or DEFAULT_CLIENT_SECRETS_FILE
     scopes = scopes or DEFAULT_SCOPES
-    return GoogleCalendarClient(credentials, scopes)
+    client = GoogleCalendarClient(credentials, scopes)
+    client.authenticate()
+    return client

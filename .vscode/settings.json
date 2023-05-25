@@ -3,8 +3,5 @@
 
     ],
     "python.analysis.extraPaths": [],
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "\"[python]\": {\"editor.formatOnPaste\": false, \"editor.formatOnSaveMode\": \"file\"}."
-    ]
+    "python.formatting.provider": "black"
 }

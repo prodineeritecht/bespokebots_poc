@@ -5,11 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Python: GCal Client",
             "type": "python",
             "request": "launch",
             "module": "pytest",
             "args": ["-s", "tests/services/google_calendar"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: GCal Tools",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["-s", "tests/services/agent/google_calendar_tools"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
