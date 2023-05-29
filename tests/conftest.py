@@ -57,7 +57,7 @@ def create_event():
         summary: str,
         timezone: str
     ):
-        return create_calendar_event(calendar_id, summary, timezone, None, None)
+        return create_calendar_event(calendar_id, summary, timezone, 0, 1)
 
     return _create_event
 

@@ -21,7 +21,7 @@ def test_view_events_with_specified_range(create_future_event):
     
     #remove the event we created
     client.delete_event("primary", future_event["id"])
-    
+
     assert len(events) > 0
     assert(
         any((event["summary"] == "Future Event") for event in events)

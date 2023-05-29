@@ -125,6 +125,7 @@ class GoogleCalendarClient:
 
             # Alright, let's make a new guest for our party
             new_entry = GoogleCalendarEntry(
+                event_id=event["id"],
                 title=event["summary"],
                 start=start,
                 end=end,

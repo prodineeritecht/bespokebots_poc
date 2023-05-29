@@ -14,6 +14,15 @@
             "justMyCode": true
         },
         {
+            "name": "Python: Agent Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["-s", "tests/services/agent"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python: GCal Tools",
             "type": "python",
             "request": "launch",

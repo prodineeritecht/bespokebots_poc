@@ -34,8 +34,9 @@ class GoogleCalendarViewEventsTool(GoogleCalendarBaseTool):
     """Tool for viewing events in Google Calendar."""
 
     name: str = "view_calendar_events"
-    description: str = """Use this tool to fetch events from a human's Google Calendar over a specified time range. 
-    If the human didn't provide a time frame, the tool will default to the next 7 days of events."""
+    description: str = """Use this tool to help you answer questions a human may have about their schedule or when important events are happening. 
+    Think of this as the your calendar search tool. If the human doesn't specify a time range, the tool will default to looking one week in advance."""
+
     args_schema: Type[ViewEventsSchema] = ViewEventsSchema
 
     def _run(
