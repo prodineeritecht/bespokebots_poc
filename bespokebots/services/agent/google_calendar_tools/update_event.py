@@ -81,6 +81,9 @@ class GoogleCalendarUpdateEventTool(GoogleCalendarBaseTool):
     ) -> dict:
         """Update an event in Google Calendar."""
         try:
+            #ensure the gcal_client has been authenticated
+            self.gcal_client.authenticate()
+
             if event_id is None and summary is None and start_time is None and end_time is None:
                 raise Exception("Either an event id or start, end and summary are required to find and then update and event")
             

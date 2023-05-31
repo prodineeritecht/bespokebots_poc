@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the content of the local src directory to the working directory
 COPY . .
 
-# Command to run on container start
-CMD [ "python", "./app/app.py" ]
+# Flask service
+CMD flask run 

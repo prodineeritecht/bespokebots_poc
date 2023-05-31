@@ -48,6 +48,9 @@ class GoogleCalendarViewEventsTool(GoogleCalendarBaseTool):
     ) -> dict:
         """View events in Google Calendar."""
         try:
+            #ensure the gcal_client has been authenticated
+            self.gcal_client.authenticate()
+
             gcal_events = self.gcal_client.get_calendar_events(
                 calendar_id, time_min, time_max
             )

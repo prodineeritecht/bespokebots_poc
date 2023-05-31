@@ -77,6 +77,9 @@ class GoogleCalendarCreateEventTool(GoogleCalendarBaseTool):
             run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> dict:
         try:
+            #ensure the gcal_client has been authenticated
+            self.gcal_client.authenticate()
+
             tz = ZoneInfo(timezone)
             event_body =  GoogleCalendarEvent(tz, start_time, end_time, summary)  
             event_body.location = location

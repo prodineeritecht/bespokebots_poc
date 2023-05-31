@@ -85,5 +85,5 @@ def build_calendar_client(credentials: Optional[Credentials] = None,
     credentials = credentials or DEFAULT_CLIENT_SECRETS_FILE
     scopes = scopes or DEFAULT_SCOPES
     client = GoogleCalendarClient(credentials, scopes)
-    client.authenticate()
+    #client.authenticate()
     return client

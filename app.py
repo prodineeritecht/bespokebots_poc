@@ -1,26 +1,22 @@
 import os
-
-from flask import Flask, jsonify
+import logging
+from flask import Flask, jsonify, request
 from slack_bolt import App, Ack
 from slack_bolt.adapter.flask import SlackRequestHandler
 
 from bespokebots.services.google_calendar.google_calendar_client import \
     GoogleCalendarClient
 
+from bespokebots.services.celery_tasks import (
+    slack_app,
+    process_slack_message
+    )
+from bespokebots.services.slack.slack_service import SlackService
+
 # Create a Flask web server from the 'app' module name
 flask_app = Flask(__name__)
 
-# Initializes your app with your bot token and signing secret
-app = App(
-    token=os.environ.get("BESPOKE_BOTS_SLACK_BOT_TOKEN"),
-    signing_secret= os.environ.get("BESPOKE_BOTS_SLACK_SIGNING_SECRET")
-)
-
-@app.message("hello")
-def message_hello(message, say):
-    say("Hello there!")
-
-handler = SlackRequestHandler(app)
+handler = SlackRequestHandler(slack_app)
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
@@ -30,7 +26,18 @@ def slack_events():
 def slack_interactive():
     return handler.handle(request)
 
-@app.action("create_event")
+@slack_app.event("message")
+def process_message_events(event, say):
+    #put the message onto the celery queue
+    say("Got your message! I'm working on it. This might take a couple minutes")
+    process_slack_message.delay(event["user"], event["channel"], event["text"])
+
+
+@slack_app.event("app_mention")
+def process_mention_events(event, say):
+    say("Hello there!")
+
+@slack_app.action("create_event")
 def handle_create_event(ack: Ack, action, client, response_url):
     # Don't forget to acknowledge the action within 3 seconds
     ack()
@@ -53,7 +60,7 @@ def handle_create_event(ack: Ack, action, client, response_url):
         text=f"Event '{event_details['title']}' has been created!"
     )
 
-@app.view_submission("event_modal")
+@slack_app.view_submission("event_modal")
 def handle_view_submission(ack: Ack, view, client, trigger_id):
     # Don't forget to acknowledge the view_submission event within 3 seconds
     ack()

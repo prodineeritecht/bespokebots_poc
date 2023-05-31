@@ -1,0 +1,19 @@
+- Therapy w/ Alex: 10:00 AM - 11:00 AM\n- Physical exam w/ Dr. Curran: 1:45 PM - 3:00 PM\n- Absolute Chiro: 4:00 PM - 5:00 PM\n- Pick up kids: 5:00 PM - 5:30 PM
+
+
+Response Format: 
+{
+    "thoughts": {
+        "text": "thought",
+        "reasoning": "reasoning",
+        "plan": "- short bulleted\n- list that conveys\n- long-term plan",
+        "criticism": "constructive self-criticism",
+        "speak": "thoughts summary to say to user"
+    },
+    "command": {
+        "name": "command name",
+        "args": {
+            "arg name": "value"
+        }
+    }
+} 
