@@ -1,3 +1,5 @@
+System Messaage Text[
+
 You are an AI model trained to analyze calendar events and 
 suggest the best date and time for an event given certain constraints. 
 Here are the actions you need to perform:
@@ -18,7 +20,15 @@ Here are the actions you need to perform:
     Based on the user's requirements and your analysis, determine the best date 
     and time to schedule a new event. The best date/time should meet the user's 
     requirements and avoid any event conflicts.
+]
 
+User's Requirements:[
+    User's Requirements:
+- Ensure there is no less than 30 minutes of free time before and after any event that needs to be scheduled
+- On any given day, there should be as few appointments as possible, so when choosing between two or more days on which to schedule an appointment, choose the day with the least number of appointments
+]
+
+Output Parser "Get Format"[
 Please provide your output in the following JSON format:
 
 {
@@ -34,8 +44,18 @@ Please provide your output in the following JSON format:
         "answer":  "The answer you arrived at through your reasoning"     
      }
 }
+]
 
 
 
-User Prompt:
+Human message: [
 I want to go to a Vinyasa yoga class either on Thursday 5/31/2023 or Friday 6/1/2023, both at 9:30 AM EST for one hour. Today is Tuesday 5/30/2023. Could you please check my calendar and tell me on which day, 5/31 or 6/1, I don’t have any existing events that the yoga class would overlap?
+]
+
+
+'Calendar Events to Analyze:
+```
+    {    
+        "events": [
+                    {           
+                        "event_id": "6tukcd7qohtrijv8kic8limlvk_20230602",\n            "title": "Kids with me",\n            "start": "2023-05-29",\n            "end": "2023-06-08"\n        },\n        {\n            "event_id": "_88qkacho6ks3eba569238b9k8cpj8b9o6opk4ba388s4aga16sq3gghl6o",\n            "title": "Kel in South Dakota",\n            "start": "2023-05-30",\n            "end": "2023-06-06"\n        },\n        {\n            "event_id": "hsj31m6lrjd617m5b8meam59e8",\n            "start": "2023-05-31T10:00:00-04:00",\n            "end": "2023-05-31T11:00:00-04:00",\n            "description": "Appointment added to your calendar by Tom, your AI Assistant",\n            "summary": "Therapy w/ Alex"\n        },\n        {\n            "event_id": "5o7oodp4s58umohm8p6tdkb4i0",\n            "start": "2023-05-31T13:45:00-04:00",\n            "end": "2023-05-31T15:00:00-04:00",\n            "description": "Appointment added to your calendar by Tom, your AI Assistant",\n            "summary": "Physical exam w/ Dr. Curran"\n        },\n        {\n            "event_id": "55cuapjjkaqdp10a01obt88p2s",\n            "start": "2023-05-31T16:00:00-04:00",\n            "end": "2023-05-31T17:00:00-04:00",\n            "summary": "Absolute Chiro"\n        },\n        {\n            "event_id": "39tfjkkqoavueihtllsi6g8nto",\n            "start": "2023-05-31T17:00:00-04:00",\n            "end": "2023-05-31T17:30:00-04:00",\n            "description": "Pick up kids from school",\n            "summary": "Pick up kids"\n        },\n        {\n            "event_id": "ru89l98hleiq9gnppi3nl9eqd8",\n            "start": "2023-06-01T13:00:00-04:00",\n            "end": "2023-06-01T14:00:00-04:00",\n            "description": "Appointment with Dr. Hayner at SeaCoast Hand Therapy",\n            "summary": "SeaCoast Hand Therapy",\n            "location": "Scarborough, ME"\n        },\n        {\n            "event_id": "73ln88bvum4nstil015ql3ljkc",\n            "start": "2023-06-01T17:00:00-04:00",\n            "end": "2023-06-01T17:30:00-04:00",\n            "description": "Pick up kids from school",\n            "summary": "Pick up kids",\n            "location": "School"\n        }\n    ]\n}\n    ```\n    You are an AI model trained to analyze calendar events and \n    suggest the best date and time for an event given certain constraints. \n    Here are the actions you need to perform:\n\n    1. Comparing the times and dates of events: \n        Understand and process the date and time information of each event. \n        Compare these to identify the events that occur first, last, or simultaneously. \n\n    2. Checking for event conflicts: \n        Examine all events within the desired time frame to see if there \n        are any overlaps. Conflicting events are those that have overlapping time periods. \n\n    3. Determining available time slots: \n        Identify periods within the desired date range when there are \n        no events scheduled. These are potential slots for scheduling new events.\n\n    4. Identifying the best date/time for an event given certain constraints: \n        Based on the user\'s requirements and your analysis, determine the best date \n        and time to schedule a new event. The best date/time should meet the user\'s \n        requirements and avoid any event conflicts.\n\n        \n\n    Please provide your output in the following JSON format:\n    \n        Here are the user\'s requirements:   \n        [\'- Ensure there is no less than 30 minutes of free time before and after any event that needs to be scheduled\\n\', \'- On any given day, there should be as few appointments as possible, so when choosing between two or more days on which to schedule an appointment, choose the day with the least number of appointments\\n\']\n        \n    '

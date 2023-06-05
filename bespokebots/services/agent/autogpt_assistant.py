@@ -16,8 +16,10 @@ from langchain.utilities import SerpAPIWrapper
 from bespokebots.services.agent.google_calendar_tools import (
     GoogleCalendarCreateEventTool, 
     GoogleCalendarViewEventsTool,
-    GoogleCalendarUpdateEventTool
+    GoogleCalendarUpdateEventTool,
+    GoogleCalendarDeleteEventTool
     )
+from bespokebots.services.chains import CalendarDataAnalyzerTool
 
 #Set up the tools for the agent
 #search = SerpAPIWrapper()
@@ -31,7 +33,9 @@ tools = [
     ReadFileTool(),
     GoogleCalendarCreateEventTool(),
     GoogleCalendarViewEventsTool(),
-    GoogleCalendarUpdateEventTool()
+    GoogleCalendarUpdateEventTool(),
+    GoogleCalendarDeleteEventTool(),
+    CalendarDataAnalyzerTool()
 ]
 
 from langchain.docstore import InMemoryDocstore

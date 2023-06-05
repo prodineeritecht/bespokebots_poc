@@ -18,3 +18,13 @@ class SlackService:
         except SlackApiError as e:
             self.logger.error(f"Error posting message: {e}")
 
+    def send_message_with_blocks(self, channel: str, blocks: list):
+        try:
+            response = self.slack_app.client.chat_postMessage(
+                channel=channel,
+                blocks=blocks,
+            )
+            assert response["message"]["text"] == text
+        except SlackApiError as e:
+            self.logger.error(f"Error posting message: {e}")
+

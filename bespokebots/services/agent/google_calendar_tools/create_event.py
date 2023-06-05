@@ -60,7 +60,8 @@ class CreateEventSchema(BaseModel):
 class GoogleCalendarCreateEventTool(GoogleCalendarBaseTool):
     name: str = "create_calendar_event"
     description: str = """Use this tool to create an event on a human's Google Calendar. Right now, this tool can only create one event
-    at a time. If you want to create multiple events, you will need to call this tool multiple times. The tool will return the event that was created.  
+    at a time. If you want to create multiple events, you will need to call this tool multiple times. The tool will return the event that was created. 
+    All dates and times are in the timezone of the calendar. The default timezone is America/New_York. 
     """
     args_schema: Type[CreateEventSchema] = CreateEventSchema
 

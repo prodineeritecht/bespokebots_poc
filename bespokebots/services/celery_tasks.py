@@ -20,12 +20,12 @@ slack_app = App(
     signing_secret= os.environ.get("BESPOKE_BOTS_SLACK_SIGNING_SECRET")
 )
 
-agent = build_agent()
 slack_handlers = SlackService(slack_app, logger)
 
 @celery.task
 def process_slack_message(user_id: str, channel_id: str, text: str):
     # Here is where you will do your long-running task processing the slack message
+    agent = build_agent()
     response_text = agent.run([text])
 
     print("------------------------------------")

@@ -27,12 +27,20 @@ were created with the UTC timezone, but should have been created in the America/
 update the events you created to have the correct timezone? Right now they all appear at 1pm on my calendar, rather than 5pm.
 """
 
-message="""Hi Tom, you helped me create some events on my calendar to help me remeber when to pick my kids up from school.
+"""Hi Tom, you helped me create some events on my calendar to help me remeber when to pick my kids up from school.
 Each of the events has a summary or title of 'Pick up kids'.  Unfortunately, each of the events was created for 1pm eastern time, rather than
 5pm like I had asked.  Can you update each of these 'Pick up kids' events to be at 5pm instead of 1pm? 
 Don't forget to use the America/New_York timezone.
 """
 
+"""I want to go to a Vinyasa yoga class either on Thursday 6/1/2023 or Friday 6/2/2023, both at 9:30 AM EST for one hour. Today is Tuesday 5/30/2023. Could you please check my calendar and tell me on which day, 6/1 or 6/2, I don’t have any existing events that the yoga class would overlap?"""
+
+#There is something about this particular command that somehow breaks the langchain AutoGPT agent. It is very odd. 
+# What I have seen is that the agent reply from the first call to view_calendar_events never gets added to the subsequent
+# generated prompts, so the "SystemMessage" with the memory at the bottom of the prompt is always empty.    
+"""Hi Tom could you look at the events on my calendar from 5/1/2023 to today 6/2/2023 and tell me how many days in that time period my kids have been with me? You can look for multi-day events with titles like “Kids with me” or “Rob kid week”."""
+
+message = """Hi Tom, I am trying to plan something with a friend, but need to know what my kid schedule looks like.  Today is Saturday, 6/3/2023, my kids go back to their mom's house on Wednesday, 6/7/2023.  Can you tell me when my next kid visit is after our current one?"""
 
 
 

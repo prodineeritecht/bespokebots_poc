@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Python: GCal Client",
             "type": "python",
@@ -20,7 +21,7 @@
             "module": "pytest",
             "args": ["-s", "tests/services/agent"],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Python: GCal Tools",
@@ -28,6 +29,33 @@
             "request": "launch",
             "module": "pytest",
             "args": ["-s", "tests/services/agent/google_calendar_tools"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Chain Prompts Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["-s", "tests/services/chains/prompts"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Output Parser Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["-s", "tests/services/chains/output_parsers"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Chain Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["-s", "tests/services/chains/test_calendar_data_analyzer_chain.py"],
             "console": "integratedTerminal",
             "justMyCode": true
         },

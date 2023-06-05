@@ -1,4 +1,5 @@
 """Block Kit UI for scheduling an event."""
+import json
 
 def generate_available_slots(slots):
     """Generate the available slots for the user to select from.
@@ -37,18 +38,20 @@ def generate_available_slots(slots):
 
 
 def generate_schedule_event_modal():
+    """Generate the modal to schedule an event using Slack's Block Kit UI."""
+
     modal = {
         "type": "modal",
         "callback_id": "schedule_event_modal",
         "title": {
             "type": "plain_text",
             "text": "Schedule Event",
-            "emoji": True,
+            "emoji": True
         },
         "submit": {
             "type": "plain_text",
             "text": "Create Event",
-            "emoji": True,
+            "emoji": True
         },
         "blocks": [
             {
@@ -56,13 +59,13 @@ def generate_schedule_event_modal():
                 "block_id": "event_title",
                 "element": {
                     "type": "plain_text_input",
-                    "action_id": "title",
+                    "action_id": "title"
                 },
                 "label": {
                     "type": "plain_text",
                     "text": "Event Title",
-                    "emoji": True,
-                },
+                    "emoji": True
+                }
             },
             {
                 "type": "input",
@@ -70,16 +73,41 @@ def generate_schedule_event_modal():
                 "element": {
                     "type": "plain_text_input",
                     "multiline": True,
-                    "action_id": "description",
+                    "action_id": "description"
                 },
                 "label": {
                     "type": "plain_text",
                     "text": "Event Description",
-                    "emoji": True,
-                },
+                    "emoji": True
+                }
             },
-        ],
+            {
+                "type": "input",
+                "element": {
+                    "type": "datetimepicker",
+                    "action_id": "datetimepicker-action"
+                },
+                "label": {
+                    "type": "plain_text",
+                    "text": "Event Start",
+                    "emoji": True
+                }
+            },
+            {
+                "type": "input",
+                "element": {
+                    "type": "datetimepicker",
+                    "action_id": "datetimepicker-action"
+                },
+                "label": {
+                    "type": "plain_text",
+                    "text": "Event End",
+                    "emoji": True
+                }
+            }
+        ]
     }
 
-    return modal
+    modal_json = json.dumps(modal)
+    return modal_json
 
