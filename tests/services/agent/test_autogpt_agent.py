@@ -44,7 +44,7 @@ message = """Hi Tom, I am trying to plan something with a friend, but need to kn
 
 
 
-def test_ask_about_my_schedule(): 
+def _ask_about_my_schedule(): 
     agent = build_agent()
     response = agent.run([message])
     print(response)

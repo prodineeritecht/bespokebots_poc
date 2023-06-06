@@ -13,11 +13,11 @@ from bespokebots.services.google_calendar import (
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import Resource
 from googleapiclient.discovery import build as build_resource
-from bespokebots.services.agent.google_calendar_tools.utils import build_calendar_client
+from bespokebots.services.agent.google_calendar_tools.utils import build_calendar_and_feedback_clients
 
 
 class GoogleCalendarBaseTool(BaseTool):
-    gcal_client: GoogleCalendarClient = Field(default_factory=build_calendar_client)
+    gcal_client: GoogleCalendarClient = Field(default_factory=build_calendar_and_feedback_clients)
 
     @classmethod
     def from_gcal_client(

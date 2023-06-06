@@ -21,12 +21,12 @@ class ViewEventsSchema(BaseModel):
     time_min: Optional[str] = Field(
         None,
         title="Time Min",
-        description="The start time of the time range to view events from. In ISO 8601 format with a timezone offest or Z for UTC.",
+        description="The start time of the time range to view events from. In ISO 8601 format with timezone offest.",
     )
     time_max: Optional[str] = Field(
         None,
         title="Time Max",
-        description="The end time of the time range to view events from. In ISO 8601 format with a timezone offest or Z for UTC.",
+        description="The end time of the time range to view events from. In ISO 8601 format with timezone offest.",
     )
 
 
@@ -34,9 +34,7 @@ class GoogleCalendarViewEventsTool(GoogleCalendarBaseTool):
     """Tool for viewing events in Google Calendar."""
 
     name: str = "view_calendar_events"
-    description: str = """Use this tool to help you answer questions a human may have about their schedule or when important events are happening. 
-    Think of this as the your calendar search tool. If the human doesn't specify a time range, the tool will default to looking one week in advance. 
-    Unles otherwise specified, use America/New_York as the user's timezone . Additionally, all dates need to be in ISO 8601 format with a timezone offset or Z for UTC"""
+    description: str = """Use this tool to help you answer questions a human may have about their schedule. Think of this as the your calendar search tool. The human may ask you to search for events over any timeframe but the default is one week in the future. The default timezone is America/New_York."""
 
     args_schema: Type[ViewEventsSchema] = ViewEventsSchema
 

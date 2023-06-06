@@ -4,7 +4,7 @@ from typing import List, Optional
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 from bespokebots.services.chains.prompts import CalendarAnalysisChatPrompt
-from bespokebots.services.chains.templates import (
+from bespokebots.services.chains.calendar_templates import (
     CalendarDataAnalyzerTemplates as Templates,
 )
 

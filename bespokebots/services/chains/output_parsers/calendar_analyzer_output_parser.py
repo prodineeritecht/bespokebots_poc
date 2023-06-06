@@ -17,11 +17,11 @@ class Result(BaseModel):
 
 class Command(BaseModel):
     name: str = Field(description="The name of the command you want to execute.")
-    args: Dict[str] = Field(description="The arguments to pass to the command, expressed as key value pairs. If there are no arguments, just set this field to an empty JSON object.")
+    args: Dict[str,str] = Field(description="The arguments to pass to the command, expressed as key value pairs. If there are no arguments, just set this field to an empty JSON object.")
 
 class CalendarAnalysisResponse(BaseModel):
-    thoughts: Thoughts = Field()
-    result: Result = Field()
+    thoughts: Thoughts = Field(description="An object containing your thoughts and reasoning behind your analysis.")
+    result: Command = Field(description="An object containing the command you want to execute and the arguments to pass to it.")
 
 class CalendarAnalyzerOutputParserFactory:
     """Factory class for creating an output parser for the Calendar Analyzer Chain"""

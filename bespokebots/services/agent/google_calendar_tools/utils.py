@@ -75,7 +75,7 @@ DEFAULT_CREDS_TOKEN_FILE = "../../../../token.json"
 DEFAULT_CLIENT_SECRETS_FILE = "../../../../credentials.json"
 
 
-def build_calendar_client(credentials: Optional[Credentials] = None,
+def build_calendar_and_feedback_clients(credentials: Optional[Credentials] = None,
                           scopes: Optional[List[str]] = None) -> GoogleCalendarClient:
     """Build a Google Calendar client."""
 

@@ -14,19 +14,18 @@ from langchain.schema import (
     SystemMessage
 )
 
-from bespokebots.services.chains.calendar_templates import (
-    CalendarDataAnalyzerTemplates as Templates
+from bespokebots.services.chains.templates.bespoke_bot_templates import (
+    BESPOKE_BOT_MAIN_TEMPLATE
 )
 
-
-class CalendarAnalysisChatPrompt:
-    """Prompt for the CalendarAnalysisCustomChain."""
+class BespokeBotChatPrompt:
+    """Prompt for the BespokeBotCustomChain."""
 
     @classmethod
     def from_user_request(cls, user_request: str) -> PromptTemplate:
         """Return a prompt from a human message."""
         
         return ChatPromptTemplate.from_messages(
-            [SystemMessagePromptTemplate.from_template(Templates.AI_SYSTEM_MESSAGE),
+            [SystemMessagePromptTemplate.from_template(BESPOKE_BOT_MAIN_TEMPLATE),
             HumanMessagePromptTemplate.from_template(user_request)]
         )

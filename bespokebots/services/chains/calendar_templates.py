@@ -14,10 +14,9 @@ class CalendarDataAnalyzerTemplates:
             "criticism": "Identify any limitations or potential issues with your analysis. Provide constructive self-criticism.",
             "speak": "Summarize your thoughts in a brief, conversational statement that can be presented to the user."
         },
-        "result": {
+        "command": {
             "name": "The specific action or method that you propose to execute based on your analysis.",
-            "answer":  "The answer you arrived at through your reasoning",
-            "next_action": "The next action you propose to take based on your analysis. An example would be asking the user if they want an event scheduled or updated. This field does not have to be part of the response."
+            "args":  "The arguments to pass to the command, expressed as key value pairs. If there are no arguments, just set this field to an empty JSON object."
         }
 
         If the next action you propose has to do with scheduling an event set the next_action field to "schedule_event_slack", this will ensure that the user sees a helpful user interface for scheduling an event.

@@ -63,9 +63,9 @@ class GoogleCalendarUpdateEventTool(GoogleCalendarBaseTool):
     This tool will use either the event_id, or the summary, start_time and end_time to find the event to update. Once
     it finds an event, it will update the event with the update_fields by setting the key in the calendar event to the value from update fields.
     If the event cannot be found, an error is raised with information about what went wrong.
-    Below is an example of the updateable fields in a Google Calendar event JSON. Use this to help figure out how to construct the 'update_fields' parameter:
-    {"summary": "Rob Whiteston and Jessica Loy","description": "Event Name: Recruiter Screen","location": "Google Meet (instructions in description)","start": {"dateTime": "2023-05-19T15:00:00-04:00","timeZone": "America/Chicago"},"end": {"dateTime": "2023-05-19T15:30:00-04:00","timeZone": "America/Chicago"}}
 """
+#Below is an example of the updateable fields in a Google Calendar event JSON. Use this to help figure out how to construct the 'update_fields' parameter:
+#{"summary": "Rob Whiteston and Jessica Loy","description": "Event Name: Recruiter Screen","location": "Google Meet (instructions in description)","start": {"dateTime": "2023-05-19T15:00:00-04:00","timeZone": "America/Chicago"},"end": {"dateTime": "2023-05-19T15:30:00-04:00","timeZone": "America/Chicago"}}
 
     args_schema: Type[UpdateEventSchema] = UpdateEventSchema
 
