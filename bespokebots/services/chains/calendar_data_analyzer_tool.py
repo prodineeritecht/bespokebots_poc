@@ -85,6 +85,8 @@ class CalendarDataAnalyzerTool(BaseTool):
                 )
         chain.verbose = True
         output = chain.run_chain(events, CalendarDataAnalyzerTool.default_additional_user_requirements()) 
+
+        #  # print("---------------------------------------------------------------------------------")
         return output
     
     async def _arun(self, calendar_id: str, summary: str, event_id: str, start_time: str, end_time: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> dict:

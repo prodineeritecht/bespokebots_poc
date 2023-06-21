@@ -7,10 +7,140 @@ from typing import List, Optional, Type
 
 import pytest
 
+from langchain.callbacks import get_openai_callback
+from langchain.llms.fake import FakeListLLM
+from bespokebots.services.agent import BespokeBotAgent
+from bespokebots.services.chains.templates import (
+    STRUCTURED_CHAT_PROMPT_PREFIX, 
+    STRUCTURED_CHAT_PROMPT_SUFFIX
+    )
+from langchain.agents.structured_chat.prompt import SUFFIX
+from langchain.docstore import InMemoryDocstore
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+import faiss
+
 from bespokebots.services.google_calendar import (
     GoogleCalendarClient,
     GoogleCalendarEvent,
 )
+
+from bespokebots.services.chains.output_parsers import (
+    CalendarAnalyzerOutputParserFactory,
+    Thoughts,
+    Analysis,
+    Command,
+    CalendarAnalysisResponse
+)
+
+from bespokebots.services.agent.todoist_tools import (CreateTaskTool, 
+                                                      ViewProjectsTool,
+                                                      CreateProjectTool)
+
+@pytest.fixture
+def create_task_tool():
+    tool = CreateTaskTool()
+    yield tool
+
+@pytest.fixture
+def task(create_task_tool):
+    task = create_task_tool.run({"content": "Test task"})
+    yield task
+    create_task_tool.todoist_client.delete_task(task['id'])
+
+@pytest.fixture
+def project_id():
+    project_id = "2054677608"
+    yield project_id
+
+@pytest.fixture
+def project_task(create_task_tool, project_id):
+    task = create_task_tool.run({"content": "Test task", "project_id": project_id})
+    yield task
+    create_task_tool.todoist_client.delete_task(task['id'])
+
+@pytest.fixture
+def create_project_tool():
+    tool = CreateProjectTool()
+    yield tool
+
+@pytest.fixture
+def project_name():
+    project_name = "Test Project"
+    yield project_name
+
+@pytest.fixture
+def project(create_project_tool):
+    project = create_project_tool.run({"name": "Test Project"})
+    yield project
+    create_project_tool.todoist_client.delete_project(project['id'])
+
+@pytest.fixture
+def child_project(create_project_tool,project):
+    child = create_project_tool.run({"name": "Test Child Project", "parent_id": project['id']})
+    yield child
+    #project.create_project_tool.todoist_client.delete_project(child['id'])
+    # I am pretty sure the parent project gets deleted after the yield in the project fixture.
+
+@pytest.fixture
+def lime_green_project(create_project_tool):
+    project = create_project_tool.run({"name": "Test Project", "color": "lime_green"})
+    yield project
+    create_project_tool.todoist_client.delete_project(project['id'])
+
+
+
+@pytest.fixture
+def create_bespoke_bot_agent():
+    def _create_bespoke_bot_agent():
+
+        embeddings_model = OpenAIEmbeddings()
+        # Initialize the vectorstore as empty
+        
+        embedding_size = 1536
+        index = faiss.IndexFlatL2(embedding_size)
+        vectorstore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
+
+        bb_agent = BespokeBotAgent(
+            ai_name="BespokeBot",
+            memory=vectorstore
+        )
+
+        return bb_agent
+    return _create_bespoke_bot_agent
+
+@pytest.fixture
+def generate_calendar_analysis_object():
+    def _generate_calendar_analysis_object():
+        thoughts = Thoughts(
+            text = "figure out which day to schedule a thing",
+            reasoning="I'm trying to figure out which day to schedule a thing",
+            plan="I'm going to look at your calendar and see if I can find a day that works for you", 
+            criticism="I'm assuming that you don't have any other commitments and that you're in the same timezone as your calendar events",
+            speak="You are gonna need a bigger calendar"
+        )
+        analysis = Analysis(
+            events_dates_comparison="Comparing the events' dates to 6/7 and 6/8.",
+            event_conflict_detection="Checking for event conflicts on 6/7 and 6/8 at 9:30 AM EST for one hour.",
+            available_time_slot_detection="Identifying available time slots on 6/7 and 6/8.",
+            best_date_time_selection="Selecting the best date and time for the event.",
+            answer="The best date and time for the event is 6/7 at 9:30 AM EST for one hour."
+        )
+        command = Command(
+            name="schedule_event",
+            args={
+                "title": "A thing",
+                "start": "2023-06-07T09:30:00-04:00",
+                "end": "2023-06-07T10:30:00-04:00",
+            }
+        )
+        return CalendarAnalysisResponse(
+            thoughts=thoughts,
+            analysis=analysis,
+            command=command,
+        )
+
+    return _generate_calendar_analysis_object
 
 @pytest.fixture
 def events():
@@ -166,3 +296,5 @@ def create_calendar_event(
     response = google_calendar_client.create_event(calendar_id, event)
 
     return google_calendar_client, response
+
+

@@ -14,7 +14,7 @@ from langchain.schema import (
     SystemMessage
 )
 
-from bespokebots.services.chains.templates.bespoke_bot_templates import (
+from bespokebots.services.chains.templates import (
     BESPOKE_BOT_MAIN_TEMPLATE
 )
 

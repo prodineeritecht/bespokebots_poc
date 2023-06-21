@@ -11,6 +11,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chat_models.base import BaseChatModel
 from langchain.tools.base import BaseTool
 from langchain.callbacks.base import BaseCallbackManager
+from langchain.callbacks import StdOutCallbackHandler
 from langchain.tools.human.tool import HumanInputRun
 from langchain.vectorstores.base import VectorStoreRetriever
 from langchain.output_parsers import PydanticOutputParser
@@ -31,6 +32,11 @@ from langchain.schema import (
     BaseMessage,
 )
 
+from langchain.docstore import InMemoryDocstore
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+import faiss
+
 from langchain.tools.file_management.read import ReadFileTool
 from langchain.tools.file_management.write import WriteFileTool
 from langchain.utilities import SerpAPIWrapper
@@ -41,7 +47,21 @@ from bespokebots.services.agent.google_calendar_tools import (
     GoogleCalendarUpdateEventTool,
     GoogleCalendarDeleteEventTool,
 )
+from bespokebots.services.chains.output_parsers import (
+    CalendarAnalyzerOutputParserFactory
+)
 from bespokebots.services.chains import CalendarDataAnalyzerTool
+from bespokebots.models import (
+    CommunicationChannel
+)
+
+from bespokebots.services.agent.todoist_tools import (
+    CreateTaskTool,
+    CloseTaskTool,
+    ViewProjectsTool,
+    CreateProjectTool
+) 
+
 
 # Things the ai assistant needs to be able to do
 # 1. Take in a user goal
@@ -55,8 +75,22 @@ from bespokebots.services.chains import CalendarDataAnalyzerTool
 
 
 class BespokeBotAgent:
-    """The BespokeBotAgent class is responsible for handling the agent mechanics required for the digital assistant."""
+    """The BespokeBotAgent class is responsible for handling the agent mechanics required for the digital assistant.
+    This class is really a wrapper around the StructuredChatAgent class from langchain. It is responsible for
+    setting up the tools, the LLMChain, and the agent itself. It also handles the execution of the agent.
 
+    """
+    # Default vector store
+    embeddings_model = OpenAIEmbeddings()
+    # Initialize the vectorstore as empty
+    
+    embedding_size = 1536
+    index = faiss.IndexFlatL2(embedding_size)
+    vectorstore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
+
+
+    # turn on tracing for the agent
+    os.environ["LANGCHAIN_TRACING"] = "true"
     serp_api_key = os.getenv("SERPAPI_API_KEY")
     # Set up the tools for the agent
     #search = SerpAPIWrapper()
@@ -70,21 +104,25 @@ class BespokeBotAgent:
         GoogleCalendarViewEventsTool(),
         GoogleCalendarUpdateEventTool(),
         GoogleCalendarDeleteEventTool(),
-        CalendarDataAnalyzerTool()
+        CalendarDataAnalyzerTool(return_direct = True),
+        ViewProjectsTool(),
+        CreateProjectTool(),
+        CreateTaskTool(),
+        CloseTaskTool(),
     ]
 
     def __init__(
         self,
         ai_name: str,
-        memory: VectorStoreRetriever,
         llm_model: str = "gpt-4",
         temperature: float = 0.0,
+        memory: VectorStoreRetriever = None,
         additional_tools: List[BaseTool] = None,
         callback_manager: Optional[BaseCallbackManager] = None,
         feedback_tool: Optional[HumanInputRun] = None,
     ):
         self.ai_name = ai_name
-        self.memory = memory
+        self.memory = BespokeBotAgent.vectorstore if memory is None else memory
         self.full_message_history: List[BaseMessage] = []
         self.next_action_count = 0
         self.additional_tools = additional_tools
@@ -95,6 +133,9 @@ class BespokeBotAgent:
         self.temperature = temperature
         self.llm_chain = None
         self.llm = None
+        self.executor = None
+        self.prefix = None
+        self.suffix = None
 
     # def estimate_tokens(self, message: str) -> int:
     #     """Estimate the number of tokens required to generate a response."""
@@ -113,7 +154,7 @@ class BespokeBotAgent:
 
         self.llm = ChatOpenAI(temperature=self.temperature, model_name=self.llm_model)
 
-        # self.prompt = ZeroShotAgent.create_prompt(
+        # self.prompt = StructuredChatAgent.create_prompt(
         #     tools=self.tools,
         #     prefix=prefix,
         #     suffix=suffix,
@@ -127,13 +168,23 @@ class BespokeBotAgent:
         #     llm=ChatOpenAI(temperature=self.temperature, model_name=self.llm_model),
         #     prompt=self.prompt,
         # )
+        calendar_format_instructions = CalendarAnalyzerOutputParserFactory.create_output_parser()
         
         self.agent = StructuredChatAgent.from_llm_and_tools(
             llm=self.llm,
             tools=self.tools,
             prefix=prefix,
             suffix=suffix,
-            input_variables=input_variables,
+            input_variables=input_variables
         )
 
-        return AgentExecutor.from_agent_and_tools(agent=self.agent, tools=self.tools)
+        self.agent.llm_chain.verbose = True
+
+        self.executor = AgentExecutor.from_agent_and_tools(agent=self.agent, tools=self.tools)
+
+    def run_agent(self, user_goal: str) -> str:
+        """Run the agent with a user goal."""
+        if self.executor is None:
+            self.initialize_agent(prefix=self.prefix, suffix=self.suffix)
+        
+        return self.executor.run(user_goal)

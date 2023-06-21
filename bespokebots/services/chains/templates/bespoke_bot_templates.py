@@ -65,3 +65,59 @@ OUTPUTPARSER_TEMPLATE ="""
     "args":  "The arguments to pass to the command, expressed as key value pairs. If there are no arguments, just set this field to an empty JSON object."
 }
 """
+
+STRUCTURED_CHAT_PROMPT_PREFIX = """Your role is that of an Assistant and Coach to a client. Help your client by answering their quesitons and completing tasks for them.
+    You have access to the client's calendar and can use it to help them time management.
+    """
+
+STRUCTURED_CHAT_PROMPT_SUFFIX = """Be sure to minimize the number of commands you have to use to complete the client's request. 
+    Question:{input}
+
+    {agent_scratchpad}
+    """
+
+
+FULL_JSON = """Please use the following JSON format the final response to the human in your "Final Answer" action $JSON_BLOB:
+    ```
+    {{{{
+        "thoughts": {{{{
+            "text": "Provide a brief overview of the current situation or context based on your analysis of the calendar events.",
+            "reasoning": "Explain the logic behind your analysis and the conclusions you've reached. This includes any patterns or conflicts you've identified, as well as the criteria you used to determine the best date/time for the event.",
+            "plan": "Short description of your strategy for proceeding with the task, including any next steps or considerations for future actions.",
+            "criticism": "Identify any limitations or potential issues with your analysis. Provide constructive self-criticism.",
+            "speak": "Summarize your thoughts in a brief, conversational statement that can be presented to the user."
+        }}}},
+        "analysis": {{{{
+            "events_dates_comparison": "Understand and process the date and time information of each event. Compare these to identify the events that occur first, last, or simultaneously. ",
+            "event_conflict_detection": "Examine all events within the desired time frame to see if there are any overlaps. Conflicting events are those that have overlapping time periods. ",
+            "available_time_slot_detection": "Identify periods within the desired date range when there are no events scheduled. These are potential slots for scheduling new events.",
+            "best_date_time_selection": "Based on the user's requirements and your analysis, determine the best date and time to schedule a new event. The best date/time should meet the user's requirements and avoid any event conflicts.",
+            "answer": "The answer you arrived at through your reasoning, this must be a scalar string value."
+        }}}},
+        "command": {{{{
+            "name": "The name of the command you want to execute.",
+            "args": "The arguments to pass to the command, expressed as key value pairs. If there are no arguments, just set this field to an empty JSON object."
+        }}}}
+    }}}} 
+    ```
+
+
+    Also, ensure that all of your responses, even your "Final Answer" are in a JSON format which maybe parsed by Python's json.loads() function.
+    If your answer to the original request contains one or more calendar events, please use the following JSON format the events in your final response to the human:
+    ```
+    {{{{
+        "action": "Final Answer",
+        "action_input": {{{{
+            speak: "Brief text to be displayed with list of events",
+            events: [
+                {{{{
+                    "title": "Event Title",
+                    "start": "Event start date time in ISO 8601 format",
+                    "end": "Event end date time in ISO 8601 format",
+                    "description": "Event description"
+                }}}}
+                ]
+        }}}}
+    }}}}
+    ```
+    """

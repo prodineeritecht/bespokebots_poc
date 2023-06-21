@@ -3,10 +3,21 @@ import pytest
 from langchain.callbacks import get_openai_callback
 from langchain.llms.fake import FakeListLLM
 from bespokebots.services.agent import BespokeBotAgent
+from bespokebots.services.chains.templates import (
+    STRUCTURED_CHAT_PROMPT_PREFIX, 
+    STRUCTURED_CHAT_PROMPT_SUFFIX
+    )
+from langchain.agents.structured_chat.prompt import SUFFIX
 from langchain.docstore import InMemoryDocstore
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 import faiss
+
+from bespokebots.models import (
+    CommunicationChannel
+)
+
+import json
 
 #Things the ai assistant needs to be able to do
 #1. Take in a user goal
@@ -18,42 +29,60 @@ import faiss
 #7. Execute the agent's LLMChain in a loop until the user goal is met
 #   a. The loop will also be built with either a timeout or a max number of iterations
 
+class FakeSlackCommsChannel(CommunicationChannel):
+    def __init__(self, name, channel_id):
+        self.name = name
+        self.channel_id = channel_id
 
-def test_run_agent():
-    prefix = """Your role is that of an Assistant and Coach to a client. Help your client by answering their quesitons and completing tasks for them.
-    You have four main responsibilities when it comes to helping out your human client
-    Time Management: Schedule management, event planning, as well as daily and weekly schedule reviews
-    Daily Log: Help your client keep track of their daily activities, thoughts, and metrics.  Also help them track their ideas around various initiatives.
-    Habit Tracking: Help your client track their current habits, help them develop new habits and replace bad habits.
-    Procrastination Slayer: Help your client break through procrastination by recommending stragegies and even setting reminders and timers for them.
-    """
-
-    suffix = """Be sure to minimize the number of commands you have to use to complete the client's request.
-    Question:{input}
-
-    {agent_scratchpad}
-    """
-
-    embeddings_model = OpenAIEmbeddings()
-    # Initialize the vectorstore as empty
+    def send_response(self, response: str):
+        return "RESPONSE SENT"
     
-    embedding_size = 1536
-    index = faiss.IndexFlatL2(embedding_size)
-    vectorstore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
+    def format_response(self, response: str):
+        return "RESPONSE FORMATTED"
 
-    bb_agent = BespokeBotAgent(
-        ai_name="BespokeBot",
-        memory=vectorstore
-    )
+def test_run_agent(create_bespoke_bot_agent):
+    prefix = STRUCTURED_CHAT_PROMPT_PREFIX
 
-    executor = bb_agent.initialize_agent(prefix, suffix)
+    suffix = STRUCTURED_CHAT_PROMPT_SUFFIX
+
+    bb_agent = create_bespoke_bot_agent()
+
+    bb_agent.initialize_agent(prefix, suffix)
+
 
     weather_in_portland_request = """Hi, what's the weather like in Portland today?"""
     count_days_request = """Hi could you look at the events on my calendar from 5/1/2023 to today 6/2/2023 and tell me how many days in that time period my kids have been with me? You can look for multi-day events with titles like “Kids with me” or “Rob kid week”."""
-    output = executor.run(count_days_request)
+    next_kid_visit = """Hi Tom, I am trying to plan something with a friend, but need to know what my kid schedule looks like.  Today is Tuesday, 6/6/2023, my kids go back to their mom's house on Wednesday, 6/7/2023.  Can you tell me when my next kid visit is after our current one?"""
+    vinyasa = """I want to go to a Vinyasa yoga class either on Wednesday 6/7/2023 or Thursday 6/8/2023, both at 9:30 AM EST for one hour. Today is Tuesday 6/6/2023. Could you please check my calendar and tell me on which day, 6/7 or 6/8, I don’t have any existing events that the yoga class would overlap? You can ignore the "Kids with me" events for this request."""
+    weekly_planning = """Hi, I am trying to plan out my week next week, can you tell me what I have on my calendar for next week?  I am looking for events that between Monday 6/12/2023 and Sunday 6/18/2023."""
+
+
+    output = bb_agent.executor.run(weekly_planning)
     print(output)
 
     assert output is not None
+
+def test_agent_response_with_event_list_can_be_parsed_as_json(create_bespoke_bot_agent):
+    prefix = STRUCTURED_CHAT_PROMPT_PREFIX
+
+    suffix = STRUCTURED_CHAT_PROMPT_SUFFIX
+
+    bb_agent = create_bespoke_bot_agent()
+
+    bb_agent.initialize_agent(prefix, suffix)
+
+    fake_comms_channel = FakeSlackCommsChannel("Fake Slack Channel", "12345")
+
+    weekly_planning = """Hi, I am trying to plan out my week next week, can you tell me what I have on my calendar for next week?  I am looking for events that occur between Monday 6/12/2023 and Sunday 6/18/2023."""
+
+    output = bb_agent.run_agent(weekly_planning)
+
+    #punting on this test for now, not going to sweat the comms channel stuff yet.
+    assert output is not None
+
+
+
+        
 
 
 

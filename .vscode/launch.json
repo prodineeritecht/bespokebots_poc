@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+    
 
         {
             "name": "Python: GCal Client",
@@ -29,6 +30,15 @@
             "request": "launch",
             "module": "pytest",
             "args": ["-s", "tests/services/agent/google_calendar_tools"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Todoist Tools",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["-s", "tests/services/agent/todoist_tools"],
             "console": "integratedTerminal",
             "justMyCode": true
         },

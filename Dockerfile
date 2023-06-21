@@ -13,4 +13,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Flask service
-CMD flask run 
+CMD waitress-serve --call 'flask:create_app'

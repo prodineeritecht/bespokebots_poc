@@ -28,31 +28,11 @@ class CalendarDataAnalyzerTemplates:
     ```
     You are an AI model trained to analyze calendar events and 
     suggest the best date and time for an event given certain constraints. 
-    Here are the actions you need to perform:
-
-    1. Comparing the times and dates of events: 
-        Understand and process the date and time information of each event. 
-        Compare these to identify the events that occur first, last, or simultaneously. 
-
-    2. Checking for event conflicts: 
-        Examine all events within the desired time frame to see if there 
-        are any overlaps. Conflicting events are those that have overlapping time periods. 
-
-    3. Determining available time slots: 
-        Identify periods within the desired date range when there are 
-        no events scheduled. These are potential slots for scheduling new events.
-
-    4. Identifying the best date/time for an event given certain constraints: 
-        Based on the user's requirements and your analysis, determine the best date 
-        and time to schedule a new event. The best date/time should meet the user's 
-        requirements and avoid any event conflicts.
-
-    5. Determining how many days a type of event has occurred given a start and end date and an event type
-        Use the summary of the provided envent to find matching events over the provided start datetime and end datetime
+    Analyze the calendar events above answer the user's question as well as propose a next action if there is one.
 
     {user_requirements}
 
-    Please provide your output in the following JSON format:
+    Please provide your answer in the following JSON format:
     {output_parser_template}
     """
 

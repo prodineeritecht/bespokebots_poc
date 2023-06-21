@@ -51,30 +51,7 @@ class CalendarAnalysisLlmChain:
 
     def run_chain(self, events: str, user_requirements: str):
         """Wraps around LLMChain's run semantics to ensure the OutputParser is used."""
-        slack_schedule_event_command = "1. schedule_event_slack: Use this tool when, based on your reasoning, the user should be prompted to schedule an event on their calendar.  This will ensure a good user experience"
-        salck_scheudle_event_args = {
-            "summary": {
-                "title": "Summary",
-                "description": "The summary of the event to schedule.",
-            },
-            "start": {
-                "title": "Start",
-                "description": "The start time of the event to schedule.",
-            },
-            "end": {
-                "title": "End",
-                "description": "The end time of the event to schedule.",
-            },
-            "description": {
-                "title": "Description",
-                "description": "The description of the event to schedule.",
-            },
-        }
-        finish_command = '8. finish: use this to signal that you have finished all your objectives, args: "response": "final response to let people know you have finished your objectives"'
-        tools = (
-            f"{slack_schedule_event_command} args: {json.dumps(salck_scheudle_event_args)}"
-            f"{finish_command}"
-        )
+        
 
         chain = LLMChain(llm=self.llm, prompt=self.prompt)
         output = chain(
@@ -82,7 +59,35 @@ class CalendarAnalysisLlmChain:
                 "events_to_analyze": events,
                 "user_requirements": user_requirements,
                 "output_parser_template": self.output_parser.get_format_instructions(),
-                "tools": tools,
             }
         )
-        return self.output_parser.parse(output["text"])
+        print("-----------------CHAIN OUTPUT-----------------")
+        [
+            print(f"\n----------------\n{key}==> <[[ {value} ]]\n----------------\n")
+            for key, value in output.items()
+        ]
+        print("-----------------END CHAIN OUTPUT-----------------")
+
+        #the output isn't just JSON, its a big blob of text.  Fortunately, the JSON
+        #chunks are delimited with three backticks: ``` so we can split on that
+        
+        #The outputchunks arrary should be indexed as follows:
+        #0: The first chunk is a restatement of the original question, it ends with "Calendar Events:"
+        #1: The second chunk is the JSON of the events to analyze
+        #2: The third chunk is the LLM's list of what it did for each of the actions, which is interesting
+        #3: The fourth chunk is the JSON response we need to parse with the output parser
+        output_model = self.output_parser.parse(output["text"])
+        return output_model.json()
+
+    def find_json_answer(self, output_chunks: List[str]) -> str:
+        """Find the JSON answer in the output chunks."""
+        for chunk in output_chunks:
+            thoughts_index = chunk.find('"thoughts":')
+            if thoughts_index >= 0:
+                first_bracket_index = chunk.find("{")
+                last_bracket_index = chunk.rfind("}")
+                try:
+                    return json.loads(chunk[first_bracket_index:last_bracket_index])
+                except json.JSONDecodeError:
+                    pass
+        raise ValueError("No JSON found in output chunks.")
