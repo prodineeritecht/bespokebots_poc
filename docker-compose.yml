@@ -8,8 +8,8 @@ services:
       - 5672:5672
 
   app:
-    build: .
-    command: flask run --reload
+    image: registry.digitalocean.com/bespoke-bots-poc/bespoke-bots-image:v0.0.1
+    command: waitress-serve --call --port=3000 'app:create_app' 
     volumes:
       - .:/app
     depends_on:
@@ -28,7 +28,7 @@ services:
       - TODOIST_API_KEY=${TODOIST_API_KEY}
 
   worker:
-    build: .
+    image: registry.digitalocean.com/bespoke-bots-poc/bespoke-bots-image:v0.0.1
     volumes:
       - .:/app
     command: celery -A bespokebots.services.celery_tasks worker --loglevel=info

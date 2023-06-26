@@ -1,116 +1,40 @@
-import os
+#!/usr/bin/env python
+
 import logging
 from flask import Flask, jsonify, request
 from slack_bolt import App, Ack
 from slack_bolt.adapter.flask import SlackRequestHandler
+from bespokebots.slack_blueprints.routes import slack_bp
+from bespokebots.gcal_blueprints.routes import gcal_bp
+from bespokebots.gcal_blueprints.routes import create_authenticated_client
 
-from bespokebots.services.google_calendar.google_calendar_client import \
-    GoogleCalendarClient
 
-from bespokebots.services.celery_tasks import (
-    slack_app,
-    process_slack_message
-    )
-from bespokebots.services.slack.slack_service import SlackService
+# Initialize the logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+def create_app():
 # Create a Flask web server from the 'app' module name
-flask_app = Flask(__name__)
+    app = Flask(__name__)
+    app.register_blueprint(slack_bp)
+    app.register_blueprint(gcal_bp)
 
-handler = SlackRequestHandler(slack_app)
-
-@flask_app.route("/slack/events", methods=["POST"])
-def slack_events():
-    return handler.handle(request)
-
-@flask_app.route("/slack/interactive", methods=["POST"])
-def slack_interactive():
-    return handler.handle(request)
-
-@slack_app.event("message")
-def process_message_events(event, say):
-    #put the message onto the celery queue
-    say("Got your message! I'm working on it. This might take a couple minutes")
-    process_slack_message.delay(event["user"], event["channel"], event["text"])
-
-
-@slack_app.event("app_mention")
-def process_mention_events(event, say):
-    say("Hello there!")
-
-@slack_app.action("create_event")
-def handle_create_event(ack: Ack, action, client, response_url):
-    # Don't forget to acknowledge the action within 3 seconds
-    ack()
+    @app.route('/services/calendar/connect', methods=['GET'])
+    def connect_calendar():
     
-    values = action["view"]["state"]["values"]
-    event_details = {
-        "start_time": values["start_time_block"]["start_time_action"]["selected_option"]["value"],
-        "end_time": values["end_time_block"]["end_time_action"]["selected_option"]["value"],
-        "title": values["title_block"]["title_action"]["value"],
-        "description": values["description_block"]["description_action"]["value"],
-    }
-    
-    # Create the event using Google Calendar Client
-    calendar_client = create_authenticated_client()
-    calendar_client.create_event(event_details)
-    
-    # Notify the user about the creation of the event
-    client.chat_postMessage(
-        channel=response_url,
-        text=f"Event '{event_details['title']}' has been created!"
-    )
+        logger.info("Received request to connect to Google Calendar")
+        calendar_client = create_authenticated_client()
+        #get the calendar list
+        calendar_list =  calendar_client.get_calendar_list()
+        if not calendar_list:
+            return "No calendars found"
+        else:
+            calendars_dict = [entry.to_dict() for entry in calendar_list]   
+            return jsonify(calendars_dict)
 
-@slack_app.view_submission("event_modal")
-def handle_view_submission(ack: Ack, view, client, trigger_id):
-    # Don't forget to acknowledge the view_submission event within 3 seconds
-    ack()
-    
-    selected_slot = view["state"]["values"]["slot_selection_block"]["slot_selection_action"]["selected_option"]["value"]
-    
-    # Prepare the modal to create event
-    view = generate_event_creation_modal(selected_slot)
-    client.views_open(trigger_id=trigger_id, view=view)
-
-@flask_app.route("/services/calendar/connect", methods=["GET"])
-def connect_calendar():
-    
-    calendar_client = create_authenticated_client()
-    #get the calendar list
-    calendar_list =  calendar_client.get_calendar_list()
-    if not calendar_list:
-        return "No calendars found"
-    else:
-        calendars_dict = [entry.to_dict() for entry in calendar_list]   
-        return jsonify(calendars_dict)
-
-
-
-@flask_app.route("/services/calendar/events", methods=["GET"])
-def get_calendar_events():
-    calendar_client = create_authenticated_client()
-    events = calendar_client.get_calendar_events() 
-    if not events:
-        return "No events found"
-    else:
-        event_summaries_dict = [entry.to_dict() for entry in events]
-        return jsonify(event_summaries_dict)
-
-
-
-#helper functions
-def create_authenticated_client(scopes=None, credentials_file=None):
-    """Creates an authenticated Google Calendar client."""
-    # If scopes and credentials_file parameters are not provided, use defaults
-    if scopes is None:
-        scopes = ['https://www.googleapis.com/auth/calendar']
-    if credentials_file is None:
-        credentials_file = 'credentials.json'
-
-    # Initialize the client
-    client = GoogleCalendarClient(credentials_file, scopes)
-    client.authenticate()
-    return client
+    logger.info("Slack and GCal blueprints registered, Flask App created")
+    return app 
 
 
 if __name__ == "__main__":
-    flask_app.run(port=3000)
+    create_app().run(debug=True)

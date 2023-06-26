@@ -39,4 +39,26 @@ def test_view_projects_with_project_id():
     assert len(project["projects"]) == 1
     personal = project["projects"][0]
     assert personal['name'] == "Personal"
+
+def test_view_project_by_name():
+    tool = ViewProjectsTool()
+    project_name = "Personal"
+    project = tool.run({"project_names": [project_name]})
+
+    assert project is not None
+    assert len(project["projects"]) == 1
+    personal = project["projects"][0]
+    assert personal['name'] == "Personal"
+
+def test_view_multiple_projects_by_name():
+    tool = ViewProjectsTool()
+    project_names = ["Personal", "Office Decluttering"]
+    project = tool.run({"project_names": project_names})
+
+    assert project is not None
+    assert len(project["projects"]) == 2
+    personal = project["projects"][0]
+    assert personal['name'] == "Personal"
+    declutter = project["projects"][1]
+    assert declutter['name'] == "Office Decluttering"
     

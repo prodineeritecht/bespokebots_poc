@@ -19,17 +19,17 @@ from todoist_api_python.models import Project
 
 class ViewProjectsSchema(BaseModel):
     """Schema for the ViewProjectsTool."""
-
-    # project_names: Optional[List[str]] = Field(
-    #     None,
-    #     title="Project Name",
-    #     description="The names of the project to retrieve a summary off"
-    # )
     
     project_id: Optional[str] = Field(
        None,
        title="Project ID",
        description="The ID of the project to view."
+    )
+
+    project_names: Optional[List[str]] = Field(
+        None,
+        title="Project Names",
+        description="The names of the project to retrieve a summary off"
     )
 
 class ViewProjectsTool(TodoistBaseTool):
@@ -42,6 +42,7 @@ class ViewProjectsTool(TodoistBaseTool):
     def _run(
         self,   
         project_id: Optional[str] = None,
+        project_names: Optional[List[str]] = None,
         run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> dict:
         """View projects in Todoist."""
@@ -51,6 +52,9 @@ class ViewProjectsTool(TodoistBaseTool):
             else:
                 todoist_projects = self.todoist_client.get_projects()
 
+            if project_names and len(project_names) > 0 and len(todoist_projects) > 1:
+                todoist_projects = [p for p in todoist_projects if p.name in project_names]
+            
             projects = []
             for project in todoist_projects:
                 #transform the project to a bespoke bots type

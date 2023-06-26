@@ -98,11 +98,11 @@ class CreateTaskSchema(BaseModel):
     parent_id: Optional[int] = Field(
         None,
         title="Parent ID",
-        description="The ID of the parent task. If not set, the task will be created without a parent."
+        description="The ID of the parent task. this should be set to the task id of the parent project if the task being created is a subtask."
     )
 
 class CreateTaskTool(TodoistBaseTool): 
-    name: str = "Create Task"
+    name: str = "create_task"
     description: str = """Use this tool when you need to create a task in Todoist for a client. The only required field, content, will be used as the task title. If no project_id is specified, the task will be created in the Inbox."""
     
     args_schema: Type[CreateTaskSchema] = CreateTaskSchema

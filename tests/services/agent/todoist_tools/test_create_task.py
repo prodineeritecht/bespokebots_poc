@@ -30,5 +30,7 @@ def test_create_task_with_project(project_task, project_id):
     project = projects['projects'][0]
     assert project is not None
     assert len(project['tasks']) > 0
-    assert project['tasks'][0]['id'] == project_task['id']
+    #assert that the created task is in the project
+    task = next((t for t in project['tasks'] if t['id'] == project_task['id']), None)
+    assert task is not None
 

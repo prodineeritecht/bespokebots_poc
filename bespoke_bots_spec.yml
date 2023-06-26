@@ -1,0 +1,100 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+envs:
+- key: OPENAI_API_KEY
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+  value: EV[1:90MBXFGgbAPD2YPF/AAPSxr3+QRw39vC:EAGWYeoMjVB4VL1eQjHg9LhYKnpMfTfi6LPPUkCk1/UprMRXBIDpPBW+Miisgl8oTcyWd+3usxnEcP9toRrwBTcA4g==]
+- key: BESPOKE_BOTS_SLACK_BOT_TOKEN
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+  value: EV[1:YGE62wq8JvL88ker+avGA/TKosLNO0jv:xdzdNiM40nHtRhOZSwEbEJLYrfd3J8oALRW1wTLOzd7JsXvP867hOQCffFBbr7PBbDX2bT/8upI+l9wQrhYrwcsxqPrKEyqriw==]
+- key: BESPOKE_BOTS_SLACK_SIGNING_SECRET
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+  value: EV[1:kE6rFA526T2oE8RjhypwS+fdLYPEJ1VR:JlolYSMW2J8f9MVWTHwOPfUVOKlvReYTsBQVigiHwFBDZbtm49MdMCF1/tIcsPNA]
+- key: SERPAPI_API_KEY
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+  value: EV[1:51Jyoo9K/ltJVQfYpnQIiAvuaZnkjanP:kpZ3urN05RHxqO8BnKvl4z9X9ZIGdrPecpY2rPNhKTpuzyj6XUr3bBumNL8b1ISHbsIxw9vcDpc=]
+- key: TODOIST_API_KEY
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+  value: EV[1:hoo/HSuw7amSBwr0IbIp2c/m3Jpj2NiJ:40is2meaUksaWIfUM4rWuW8xAVuGUD0BdjKyisQaX4qe85+q2KP7/sAnrcimkASa+nCYBBuoTuU=]
+- key: CELERY_BROKER_URL
+  scope: RUN_AND_BUILD_TIME
+  value: amqp://guest:guest@rabbitmq:5672/
+ingress:
+  rules:
+  - component:
+      name: bespoke-bots-image
+    match:
+      path:
+        prefix: /
+name: bespoke-bots
+region: nyc
+services:
+- envs:
+  - key: CELERY_BROKER_URL
+    scope: RUN_AND_BUILD_TIME
+    value: amqp://guest:guest@rabbitmq:5672/
+  - key: FLASK_APP
+    scope: RUN_AND_BUILD_TIME
+    value: app.py
+  - key: FLASK_RUN_HOST
+    scope: RUN_AND_BUILD_TIME
+    value: 0.0.0.0
+  - key: FLASK_RUN_PORT
+    scope: RUN_AND_BUILD_TIME
+    value: "3000"
+  http_port: 3000
+  image:
+    deploy_on_push:
+      enabled: true
+    registry_type: DOCR
+    repository: bespoke-bots-image
+    tag: v0.0.1
+  instance_count: 2
+  instance_size_slug: professional-xs
+  name: bespoke-bots-image
+- envs:
+  - key: RABBITMQ_DEFAULT_USER
+    scope: RUN_TIME
+    value: guest
+  - key: RABBITMQ_DEFAULT_PASS
+    scope: RUN_TIME
+    value: guest
+  image:
+    registry_type: DOCKER_HUB
+    repository: rabbitmq
+    tag: 3-management
+  internal_ports:
+    - 5672
+  instance_count: 2
+  instance_size_slug: professional-xs  
+  name: rabbitmq
+- envs:
+  - key: CELERY_BROKER_URL
+    scope: RUN_AND_BUILD_TIME
+    value: amqp://guest:guest@rabbitmq:5672/
+  image:
+    deploy_on_push:
+      enabled: true
+    registry_type: DOCR
+    repository: bespoke-bots-image
+    tag: v0.0.1
+  instance_count: 2
+  instance_size_slug: professional-xs
+  name: bespoke-bots-worker  
+
+
+
+
+
+
+
+
+
+
+

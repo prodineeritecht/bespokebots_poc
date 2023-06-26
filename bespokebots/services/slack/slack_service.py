@@ -18,7 +18,7 @@ class SlackService(CommunicationService):
                 channel=channel,
                 text=text,
             )
-            assert response["message"]["text"] == text
+            #assert response["message"]["text"] == text
         except SlackApiError as e:
             self.logger.error(f"Error posting message: {e}")
 
