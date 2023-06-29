@@ -21,14 +21,15 @@ slack_app = App(
     signing_secret= os.environ.get("BESPOKE_BOTS_SLACK_SIGNING_SECRET")
 )
 
+agent = BespokeBotAgent(ai_name="BespokeBot")
+agent.initialize_agent(prefix=STRUCTURED_CHAT_PROMPT_PREFIX, suffix=STRUCTURED_CHAT_PROMPT_SUFFIX)
+
         
 @celery.task
 def process_slack_message(user_id: str, channel_id: str, text: str):
     # Here is where you will do your long-running task processing the slack message
     logger.info(f"Celery Task for slack message from user {user_id} in channel {channel_id}")
     slack_handlers = SlackService(slack_app, logger)
-    agent = BespokeBotAgent(ai_name="BespokeBot")
-    agent.initialize_agent(prefix=STRUCTURED_CHAT_PROMPT_PREFIX, suffix=STRUCTURED_CHAT_PROMPT_SUFFIX)
     response_text = agent.run_agent(text)
 
     # Once you have the results, you can send a message back to the user

@@ -54,7 +54,8 @@ services:
       enabled: true
     registry_type: DOCR
     repository: bespoke-bots-image
-    tag: v0.0.1
+    tag: v0.0.2
+  dockerfile_path: Dockerfile
   instance_count: 2
   instance_size_slug: professional-xs
   name: bespoke-bots-image
@@ -66,35 +67,12 @@ services:
     scope: RUN_TIME
     value: guest
   image:
+    registry: library
     registry_type: DOCKER_HUB
     repository: rabbitmq
     tag: 3-management
-  internal_ports:
-    - 5672
-  instance_count: 2
-  instance_size_slug: professional-xs  
-  name: rabbitmq
-- envs:
-  - key: CELERY_BROKER_URL
-    scope: RUN_AND_BUILD_TIME
-    value: amqp://guest:guest@rabbitmq:5672/
-  image:
-    deploy_on_push:
-      enabled: true
-    registry_type: DOCR
-    repository: bespoke-bots-image
-    tag: v0.0.1
   instance_count: 2
   instance_size_slug: professional-xs
-  name: bespoke-bots-worker  
-
-
-
-
-
-
-
-
-
-
-
+  internal_ports:
+  - 5672
+  name: rabbitmq
