@@ -201,7 +201,7 @@ class BespokeBotAgent:
                 'history': [chat_history],
                 'prefix' : prefix,
                 'suffix' : suffix,
-                #'memory_prompts': [chat_history],
+                'memory_prompts': [chat_history],
                 'input_variables': ["input", "agent_scratchpad", "history"],
             }
         )
