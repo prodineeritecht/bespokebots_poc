@@ -10,7 +10,8 @@ services:
       - 5672:5672
 
   app:
-    image: simplejack/bespoke-bots-poc:v0.0.3
+    build: .
+    image: bespokebots_poc_app:latest
     command: waitress-serve --call --port=3000 'app:create_app' 
     volumes:
       - .:/app
@@ -30,7 +31,8 @@ services:
       - TODOIST_API_KEY=${TODOIST_API_KEY}
 
   worker:
-    image: simplejack/bespoke-bots-poc:v0.0.3
+    build: .
+    image: bespokebots_poc_worker:latest
     volumes:
       - .:/app
     command: celery -A bespokebots.services.celery_tasks worker --loglevel=info --concurrency=1 --max-memory-per-child=256000

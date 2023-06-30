@@ -16,6 +16,7 @@ celery = Celery('my_project', broker=broker_url)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 slack_app = App(
     token=os.environ.get("BESPOKE_BOTS_SLACK_BOT_TOKEN"),
     signing_secret= os.environ.get("BESPOKE_BOTS_SLACK_SIGNING_SECRET")

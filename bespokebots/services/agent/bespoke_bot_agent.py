@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pydantic import ValidationError
 import os
-
+import langchain
 from langchain.chains import LLMChain
 from langchain import OpenAI
 from langchain.chat_models import ChatOpenAI
@@ -14,7 +14,10 @@ from langchain.callbacks.base import BaseCallbackManager
 from langchain.callbacks import StdOutCallbackHandler
 from langchain.tools.human.tool import HumanInputRun
 from langchain.vectorstores.base import VectorStoreRetriever
+from langchain.memory import ConversationBufferWindowMemory, ConversationBufferMemory
 from langchain.output_parsers import PydanticOutputParser
+from langchain.agents import initialize_agent
+from langchain.prompts import MessagesPlaceholder
 from langchain.agents import Tool, ZeroShotAgent, AgentExecutor,StructuredChatAgent
 from langchain.agents import AgentType
 from langchain.callbacks import get_openai_callback
@@ -59,7 +62,8 @@ from bespokebots.services.agent.todoist_tools import (
     CreateTaskTool,
     CloseTaskTool,
     ViewProjectsTool,
-    CreateProjectTool
+    CreateProjectTool,
+    GetProjectIdsTool
 ) 
 
 
@@ -88,9 +92,11 @@ class BespokeBotAgent:
     index = faiss.IndexFlatL2(embedding_size)
     vectorstore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
 
+    
 
     # turn on tracing for the agent
-    os.environ["LANGCHAIN_TRACING"] = "true"
+    os.environ["LANGCHAIN_TRACING"] = "false"
+    langchain.debug = True
     serp_api_key = os.getenv("SERPAPI_API_KEY")
     # Set up the tools for the agent
     #search = SerpAPIWrapper()
@@ -109,6 +115,7 @@ class BespokeBotAgent:
         CreateProjectTool(),
         CreateTaskTool(),
         CloseTaskTool(),
+        GetProjectIdsTool(),
     ]
 
     def __init__(
@@ -149,11 +156,7 @@ class BespokeBotAgent:
         self, prefix: str, suffix: str, input_variables: List[str] = None
     ) -> AgentExecutor:
         """Initialize the agent with the tools and prompt."""
-        if self.additional_tools:
-            self.tools.extend(self.additional_tools)
-
-        self.llm = ChatOpenAI(temperature=self.temperature, model_name=self.llm_model)
-
+        
         # self.prompt = StructuredChatAgent.create_prompt(
         #     tools=self.tools,
         #     prefix=prefix,
@@ -170,17 +173,38 @@ class BespokeBotAgent:
         # )
         calendar_format_instructions = CalendarAnalyzerOutputParserFactory.create_output_parser()
         
-        self.agent = StructuredChatAgent.from_llm_and_tools(
-            llm=self.llm,
+        # self.agent = StructuredChatAgent.from_llm_and_tools(
+        #     llm=self.llm,
+        #     tools=self.tools,
+        #     prefix=prefix,
+        #     suffix=suffix,
+        #     input_variables=input_variables
+        # )
+
+        # self.agent.llm_chain.verbose = True
+
+        # self.executor = AgentExecutor.from_agent_and_tools(agent=self.agent, tools=self.tools)
+        if self.additional_tools:
+            self.tools.extend(self.additional_tools)
+
+        self.llm = ChatOpenAI(temperature=self.temperature, model_name=self.llm_model)
+
+        convo_memory = ConversationBufferMemory(memory_key="history",return_messages=True)
+        chat_history = MessagesPlaceholder(variable_name="history") 
+        self.executor = initialize_agent(
             tools=self.tools,
-            prefix=prefix,
-            suffix=suffix,
-            input_variables=input_variables
+            llm=self.llm,
+            agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+            memory=convo_memory,
+            verbose=True,
+            agent_kwargs={
+                'history': [chat_history],
+                'prefix' : prefix,
+                'suffix' : suffix,
+                #'memory_prompts': [chat_history],
+                'input_variables': ["input", "agent_scratchpad", "history"],
+            }
         )
-
-        self.agent.llm_chain.verbose = True
-
-        self.executor = AgentExecutor.from_agent_and_tools(agent=self.agent, tools=self.tools)
 
     def run_agent(self, user_goal: str) -> str:
         """Run the agent with a user goal."""
