@@ -4,6 +4,7 @@ from bespokebots.services.agent.todoist_tools.create_task import CreateTaskTool
 from bespokebots.services.agent.todoist_tools.close_task import CloseTaskTool
 from bespokebots.services.agent.todoist_tools.create_project import CreateProjectTool
 from bespokebots.services.agent.todoist_tools.get_project_ids import GetProjectIdsTool
+from bespokebots.services.agent.todoist_tools.find_tasks_with_filter import FindTasksWithFilterTool
 
 __all__ = [
     'TodoistBaseTool',
@@ -11,5 +12,6 @@ __all__ = [
     'CreateTaskTool',
     'CloseTaskTool',
     'CreateProjectTool',
-    'GetProjectIdsTool'
+    'GetProjectIdsTool',
+    'FindTasksWithFilterTool'
 ]

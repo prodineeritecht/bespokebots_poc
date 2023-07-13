@@ -63,7 +63,8 @@ from bespokebots.services.agent.todoist_tools import (
     CloseTaskTool,
     ViewProjectsTool,
     CreateProjectTool,
-    GetProjectIdsTool
+    GetProjectIdsTool,
+    FindTasksWithFilterTool
 ) 
 
 
@@ -120,6 +121,7 @@ class BespokeBotAgent:
         CreateTaskTool(),
         CloseTaskTool(),
         GetProjectIdsTool(),
+        FindTasksWithFilterTool(),
     ]
 
     def __init__(
