@@ -22,6 +22,12 @@ class UpdateEventSchema(BaseModel):
         description="The ID of the calendar to update the event on."
     )
 
+    user_id: str = Field(
+        ...,
+        title="User ID",
+        description="The user's ID, necessary for ensuring the calendar client is able to authenticate to Google."
+    )
+
     summary: Optional[str] = Field(
         None,
         title="Summary",
@@ -60,18 +66,19 @@ class GoogleCalendarUpdateEventTool(GoogleCalendarBaseTool):
 
     name: str = "update_calendar_event"
     description: str = """Use this tool to help you update events in Google Calendar. 
-    This tool will use either the event_id, or the summary, start_time and end_time to find the event to update. Once
-    it finds an event, it will update the event with the update_fields by setting the key in the calendar event to the value from update fields.
-    If the event cannot be found, an error is raised with information about what went wrong.
+This tool will use either the event_id, or the summary, start_time and end_time to find the event to update. Once
+it finds an event, it will update the event with the update_fields by setting the key in the calendar event to the value from update fields.
+If the event cannot be found, an error is raised with information about what went wrong. 
 """
-#Below is an example of the updateable fields in a Google Calendar event JSON. Use this to help figure out how to construct the 'update_fields' parameter:
-#{"summary": "Rob Whiteston and Jessica Loy","description": "Event Name: Recruiter Screen","location": "Google Meet (instructions in description)","start": {"dateTime": "2023-05-19T15:00:00-04:00","timeZone": "America/Chicago"},"end": {"dateTime": "2023-05-19T15:30:00-04:00","timeZone": "America/Chicago"}}
+# Below is an example of the updateable fields in a Google Calendar event JSON. Use this to help figure out how to construct the 'update_fields' parameter:
+# {"summary": "Rob Whiteston and Jessica Loy","description": "Event Name: Recruiter Screen","location": "Google Meet (instructions in description)","start": {"dateTime": "2023-05-19T15:00:00-04:00","timeZone": "America/Chicago"},"end": {"dateTime": "2023-05-19T15:30:00-04:00","timeZone": "America/Chicago"}}
 
     args_schema: Type[UpdateEventSchema] = UpdateEventSchema
 
     def _run(
         self,
         calendar_id: str,
+        user_id: str,
         summary: Optional[str] = None,
         event_id: Optional[str] = None,
         start_time: Optional[str] = None,
@@ -82,7 +89,7 @@ class GoogleCalendarUpdateEventTool(GoogleCalendarBaseTool):
         """Update an event in Google Calendar."""
         try:
             #ensure the gcal_client has been authenticated
-            self.gcal_client.authenticate()
+            self.gcal_client.initialize_client(user_id)
 
             if event_id is None and summary is None and start_time is None and end_time is None:
                 raise Exception("Either an event id or start, end and summary are required to find and then update and event")

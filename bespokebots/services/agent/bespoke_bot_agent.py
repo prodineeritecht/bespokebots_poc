@@ -83,6 +83,10 @@ class BespokeBotAgent:
     This class is really a wrapper around the StructuredChatAgent class from langchain. It is responsible for
     setting up the tools, the LLMChain, and the agent itself. It also handles the execution of the agent.
 
+    Need to figure out how to create an instance of the bespoke bot agent for each user, and then
+    keep that instance persisted for each user. We don't want one user's interactions to bleed into another user's interactions.
+    In addition to user privacy concerns, bleeding interactions would also be a bad user experience.
+    This will need to be figured out as part of the user architecture when I add in the persistence layer.
     """
     # Default vector store
     embeddings_model = OpenAIEmbeddings()
@@ -156,34 +160,7 @@ class BespokeBotAgent:
         self, prefix: str, suffix: str, input_variables: List[str] = None
     ) -> AgentExecutor:
         """Initialize the agent with the tools and prompt."""
-        
-        # self.prompt = StructuredChatAgent.create_prompt(
-        #     tools=self.tools,
-        #     prefix=prefix,
-        #     suffix=suffix,
-        #     input_variables=input_variables,
-        # )
-        # print("This was generated using the ZeroShotAgent.create_prompt method:")
-        # print(self.prompt)
-        # print("++++++++++++++++++++++++++++++++++++++++++++++++++")
-
-        # self.llm_chain = LLMChain(
-        #     llm=ChatOpenAI(temperature=self.temperature, model_name=self.llm_model),
-        #     prompt=self.prompt,
-        # )
-        calendar_format_instructions = CalendarAnalyzerOutputParserFactory.create_output_parser()
-        
-        # self.agent = StructuredChatAgent.from_llm_and_tools(
-        #     llm=self.llm,
-        #     tools=self.tools,
-        #     prefix=prefix,
-        #     suffix=suffix,
-        #     input_variables=input_variables
-        # )
-
-        # self.agent.llm_chain.verbose = True
-
-        # self.executor = AgentExecutor.from_agent_and_tools(agent=self.agent, tools=self.tools)
+            
         if self.additional_tools:
             self.tools.extend(self.additional_tools)
 
@@ -197,18 +174,20 @@ class BespokeBotAgent:
             agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
             memory=convo_memory,
             verbose=True,
-            agent_kwargs={
-                'history': [chat_history],
+            agent_kwargs= {
                 'prefix' : prefix,
                 'suffix' : suffix,
                 'memory_prompts': [chat_history],
-                'input_variables': ["input", "agent_scratchpad", "history"],
+                'input_variables': ["input", "agent_scratchpad", "history"]
             }
         )
 
-    def run_agent(self, user_goal: str) -> str:
+    def run_agent(self, user_goal: str, user_id: str) -> str:
         """Run the agent with a user goal."""
+        
         if self.executor is None:
             self.initialize_agent(prefix=self.prefix, suffix=self.suffix)
         
-        return self.executor.run(user_goal)
+        user_goal_with_id = f"My user id is {user_id}, use this value for any tools that require a 'user_id' parameter. \\n {user_goal}"
+        
+        return self.executor.run(user_goal_with_id)

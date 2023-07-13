@@ -112,60 +112,13 @@ def test_update_event(create_event):
     assert updated_event.get('location') == "New Location"
 
     
-
-
-
-
-
-# def test_get_busy_time_for_a_given_timeframe():
-#     #Given that an LLM can interpret "free time blocks" from a set of busy times
-#     # over some time period, I don't think I need this functionality.  Going to just disable this test
-#     # for now.  I'll revisit this later.
-#     #credentials = Mock(valid=True)
-#     credentials = '../../../credentials.json'
-#     scopes = ['https://www.googleapis.com/auth/calendar']
+def test_start_full_oauth_flow():
+    credentials = '../../../credentials.json'
+    scopes = ['https://www.googleapis.com/auth/calendar']
     
-#     google_calendar_client = GoogleCalendarClient(credentials, scopes)
-#     google_calendar_client.authenticate()
-
-#     free_time_list = google_calendar_client.get_free_time('primary', '2023-05-19T00:00:00Z', '2023-05-29T00:00:00Z')
-
-#     assert 0 < len(free_time_list)
-
-# def test_free_time_calcualator():
-#     # Define the total time period we're considering
-#     start_time = datetime.datetime(2023, 5, 18, 0, 0)
-#     end_time = start_time + datetime.timedelta(days=7)
-
-
-#     # Define some busy intervals for testing
-#     busy_intervals = [
-#         {"start": start_time + datetime.timedelta(hours=9), "end": start_time + datetime.timedelta(hours=10)},
-#         {"start": start_time + datetime.timedelta(days=1, hours=12), "end": start_time + datetime.timedelta(days=1, hours=13)},
-#         {"start": start_time + datetime.timedelta(days=2, hours=15), "end": start_time + datetime.timedelta(days=2, hours=16)},
-#         {"start": start_time + datetime.timedelta(days=4, hours=9), "end": start_time + datetime.timedelta(days=4, hours=12)},
-#         {"start": start_time + datetime.timedelta(days=5, hours=14), "end": start_time + datetime.timedelta(days=5, hours=18)},
-#     ]
-
-#     credentials = Mock(valid=True)
-#     scopes = ['https://www.googleapis.com/auth/calendar']
-#     google_calendar_client = GoogleCalendarClient(credentials, scopes)
-
-#     freetime_intervals = google_calendar_client.free_time_calculator(start_time, end_time, busy_intervals, "primary")
-#     assert 6 == len(freetime_intervals)
-#     # Expected freetime intervals:
-#     # From May 18, 2023 00:00 (start_time) to May 18, 2023 09:00 (beginning of the first busy interval)
-#     # From May 18, 2023 10:00 (end of the first busy interval) to May 19, 2023 12:00 (beginning of the second busy interval)
-#     # From May 19, 2023 13:00 (end of the second busy interval) to May 20, 2023 15:00 (beginning of the third busy interval)
-#     # From May 20, 2023 16:00 (end of the third busy interval) to May 22, 2023 09:00 (beginning of the fourth busy interval)
-#     # From May 22, 2023 12:00 (end of the fourth busy interval) to May 23, 2023 14:00 (beginning of the fifth busy interval)
-#     # From May 23, 2023 18:00 (end of the fifth busy interval) to May 25, 2023 00:00 (end_time)
-    
-#     assert (start_time, start_time + datetime.timedelta(hours=9)) == (freetime_intervals[0].start, freetime_intervals[0].end)
-#     assert (start_time + datetime.timedelta(hours=10), start_time + datetime.timedelta(days=1, hours=12)) == (freetime_intervals[1].start, freetime_intervals[1].end)
-#     assert (start_time + datetime.timedelta(days=1, hours=13), start_time + datetime.timedelta(days=2, hours=15)) == (freetime_intervals[2].start, freetime_intervals[2].end)
-#     assert (start_time + datetime.timedelta(days=2, hours=16), start_time + datetime.timedelta(days=4, hours=9)) == (freetime_intervals[3].start, freetime_intervals[3].end)
-#     assert (start_time + datetime.timedelta(days=4, hours=12), start_time + datetime.timedelta(days=5, hours=14)) == (freetime_intervals[4].start, freetime_intervals[4].end)
-#     assert (start_time + datetime.timedelta(days=5, hours=18), end_time) == (freetime_intervals[5].start, freetime_intervals[5].end)    
-
-
+    google_calendar_client = GoogleCalendarClient(credentials, scopes)
+    google_calendar_client.authenticate()
+    assert google_calendar_client is not None
+    assert google_calendar_client.service is not None
+    assert google_calendar_client.credentials is not None
+    assert google_calendar_client.credentials.valid is True

@@ -1,0 +1,16 @@
+# Ignore the users directory
+users/
+
+# Ignore all .log files
+*.log
+
+# Ignore all .json files in the configs directory
+configs/*.json
+
+#individual files to be ignored
+credentials_do.json
+credentials_local.json
+credentials.json
+token.json
+todo_list.txt
+

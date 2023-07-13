@@ -11,7 +11,7 @@ services:
 
   app:
     build: .
-    image: bespokebots_poc_app:latest
+    #image: bespokebots_poc_app:latest
     command: waitress-serve --call --port=3000 'app:create_app' 
     volumes:
       - .:/app
@@ -19,20 +19,32 @@ services:
       - rabbitmq
     ports:
       - 3000:3000
+      - 5678:5678
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - FLASK_APP=app.py
       - FLASK_RUN_HOST=0.0.0.0
       - FLASK_RUN_PORT=3000
+      - FLASK_ENV=development
+      - ENABLE_VSCODE_DEBUGGER=true
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - BESPOKE_BOTS_SLACK_BOT_TOKEN=${BESPOKE_BOTS_SLACK_BOT_TOKEN}
       - BESPOKE_BOTS_SLACK_SIGNING_SECRET=${BESPOKE_BOTS_SLACK_SIGNING_SECRET}
+      - BESPOKE_BOTS_SLACK_CLIENT_ID=${BESPOKE_BOTS_SLACK_CLIENT_ID}
+      - BESPOKE_BOTS_SLACK_CLIENT_SECRET=${BESPOKE_BOTS_SLACK_CLIENT_SECRET}
       - SERPAPI_API_KEY=${SERPAPI_API_KEY}
       - TODOIST_API_KEY=${TODOIST_API_KEY}
+      - CLIENT_ID=${CLIENT_ID}
+      - PROJECT_ID=${PROJECT_ID}
+      - AUTH_URI=${AUTH_URI}
+      - TOKEN_URI=https://oauth2.googleapis.com/token
+      - AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - REDIRECT_URIS=${REDIRECT_URIS}
 
   worker:
     build: .
-    image: bespokebots_poc_worker:latest
+    #image: bespokebots_poc_worker:latest
     volumes:
       - .:/app
     command: celery -A bespokebots.services.celery_tasks worker --loglevel=info --concurrency=1 --max-memory-per-child=256000
@@ -41,8 +53,19 @@ services:
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FLASK_ENV=development
+      - ENABLE_VSCODE_DEBUGGER=true
       - BESPOKE_BOTS_SLACK_BOT_TOKEN=${BESPOKE_BOTS_SLACK_BOT_TOKEN}
       - BESPOKE_BOTS_SLACK_SIGNING_SECRET=${BESPOKE_BOTS_SLACK_SIGNING_SECRET}
+      - BESPOKE_BOTS_SLACK_CLIENT_ID=${BESPOKE_BOTS_SLACK_CLIENT_ID}
+      - BESPOKE_BOTS_SLACK_CLIENT_SECRET=${BESPOKE_BOTS_SLACK_CLIENT_SECRET}
       - SERPAPI_API_KEY=${SERPAPI_API_KEY}
       - TODOIST_API_KEY=${TODOIST_API_KEY}
+      - CLIENT_ID=${CLIENT_ID}
+      - PROJECT_ID=${PROJECT_ID}
+      - AUTH_URI=${AUTH_URI}
+      - TOKEN_URI=https://oauth2.googleapis.com/token
+      - AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - REDIRECT_URIS=${REDIRECT_URIS}
 

@@ -21,6 +21,13 @@ class CreateEventSchema(BaseModel):
         title="Calendar ID",
         description="The ID of the calendar to create the event on."
     )
+
+    user_id: str = Field(
+        ...,
+        title="User ID",
+        description="The user's ID, necessary for ensuring the calendar client is able to authenticate to Google."
+    )
+
     summary: str = Field(
         ...,
         title="Summary",
@@ -67,6 +74,7 @@ class GoogleCalendarCreateEventTool(GoogleCalendarBaseTool):
     def _run(
             self,
             calendar_id: str,
+            user_id: str,
             summary: str,
             timezone: str,
             start_time: str,
@@ -78,7 +86,7 @@ class GoogleCalendarCreateEventTool(GoogleCalendarBaseTool):
     ) -> dict:
         try:
             #ensure the gcal_client has been authenticated
-            self.gcal_client.authenticate()
+            self.gcal_client.initialize_client(user_id)
 
             tz = ZoneInfo(timezone)
             event_body =  GoogleCalendarEvent(tz, start_time, end_time, summary)  

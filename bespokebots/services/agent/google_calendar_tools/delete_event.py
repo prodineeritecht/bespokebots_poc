@@ -22,6 +22,12 @@ class UpdateEventSchema(BaseModel):
         description="The ID of the calendar to update the event on."
     )
 
+    user_id: str = Field(
+        ...,
+        title="User ID",
+        description="The user's ID, necessary for ensuring the calendar client is able to authenticate to Google."
+    )
+
     event_id: str = Field(
         ...,
         title="Event ID",
@@ -37,6 +43,7 @@ class GoogleCalendarDeleteEventTool(GoogleCalendarBaseTool):
 
     def _run(
             self,
+            user_id: str,
             calendar_id: str,
             event_id: str,
             run_manager: Optional[CallbackManagerForToolRun] = None, 
@@ -47,7 +54,7 @@ class GoogleCalendarDeleteEventTool(GoogleCalendarBaseTool):
             GoogleCalendarEvent: The event that was deleted.
         """
         try:
-            self.gcal_client.authenticate()
+            self.gcal_client.initialize_client(user_id=user_id)
             
             return self.gcal_client.delete_event(
                 calendar_id=calendar_id,

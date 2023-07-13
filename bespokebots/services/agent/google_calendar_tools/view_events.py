@@ -18,6 +18,13 @@ class ViewEventsSchema(BaseModel):
         title="Calendar ID",
         description="The ID of the calendar to view events from.",
     )
+
+    user_id: str = Field(
+        ...,
+        title="User ID",
+        description="The user's ID, necessary for ensuring the calendar client is able to authenticate to Google."
+    )
+
     time_min: Optional[str] = Field(
         None,
         title="Time Min",
@@ -41,6 +48,7 @@ class GoogleCalendarViewEventsTool(GoogleCalendarBaseTool):
     def _run(
         self,
         calendar_id: str,
+        user_id: str,
         time_min: Optional[str] = None,
         time_max: Optional[str] = None,
         run_manager: Optional[CallbackManagerForToolRun] = None
@@ -48,14 +56,16 @@ class GoogleCalendarViewEventsTool(GoogleCalendarBaseTool):
         """View events in Google Calendar."""
         try:
             #ensure the gcal_client has been authenticated
-            self.gcal_client.authenticate()
+            self.gcal_client.initialize_client(user_id)
 
             gcal_events = self.gcal_client.get_calendar_events(
                 calendar_id, time_min, time_max
             )
-        
-            events = [event.to_dict() for event in gcal_events]
-            return events
+            if not gcal_events:
+                return {"message": "No events found."}
+            else:
+                events = [event.to_dict() for event in gcal_events]
+                return events
         except Exception as e:
             raise Exception(f"An error occurred: {e}")
 
