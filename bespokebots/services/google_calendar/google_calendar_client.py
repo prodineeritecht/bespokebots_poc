@@ -115,7 +115,7 @@ class GoogleCalendarClient:
 
      
     def initialize_client(self, user_id):
-        self.user = User(user_id)
+        self.user = User.lookup_by_user_id(user_id)
         self.creds = Credentials.from_authorized_user_info(self.user.credentials)
         self._build_service()
         

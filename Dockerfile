@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy the dependencies file to the working directory
 COPY requirements.txt .
 
+# Create the users directory
+RUN mkdir -p users
+
 RUN apt-get clean && apt-get update && apt-get install -y \
     build-essential && useradd appuser && chown -R appuser /app
 

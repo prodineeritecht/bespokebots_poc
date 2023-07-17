@@ -44,11 +44,11 @@ def oauth_callback_slack():
     client_secret = slack_app.client_secret
     redirect_uri = url_for('slack.oauth_callback_slack', _external=True)
 
-    flow = OAuthFlow(
-        client_id=client_id, 
-        client_secret=client_secret, 
-        redirect_uri=redirect_uri
-    )
+    # flow = OAuthFlow(
+    #     client_id=client_id, 
+    #     client_secret=client_secret, 
+    #     redirect_uri=redirect_uri
+    # )
     
     code = request.args.get('code')
     state = request.args.get('state')
@@ -57,8 +57,9 @@ def oauth_callback_slack():
     if not session.get('state') == state:
         return "State does not match. Aborting."
 
-    response = flow.exchange_code_for_token(code)
-    
+    # response = flow.exchange_code_for_token(code)
+    response = {}
+    response["access_token"] = "jlaksdjfkljqadlfkjq"
     # save the token, you might want to associate it with a user
     # maybe you've stored a user_id in the session you can retrieve here
     access_token = response['access_token']

@@ -30,7 +30,7 @@ def oauth_connect_calendar():
     logger.info(f"Received request to connect to Google Calendar for user {session.get('user_id')}")
     try:
         user_id = session.get('user_id')
-        user = User(user_id) if user_id else None
+        user = User.lookup_by_user_id(user_id) if user_id else None
         creds_file = f"{user_id}.json"
         calendar_client = GoogleCalendarClient(creds_file,['https://www.googleapis.com/auth/calendar'],user)
         redirect_uri = request.url_root.rstrip('/') + url_for('gcal.oauth_callback')
@@ -41,15 +41,12 @@ def oauth_connect_calendar():
         logger.exception("Error connecting to Google Calendar: %s", e)
         return f"Error connecting to Google Calendar: {e}", 500
 
-#https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=38992558726-n9en7smp0r5320gd86o623klba3jsjga.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fd9ff-198-255-250-229.ngrok-free.app%2Fservices%2Foauth%2Fcalendar%2Fcallback&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&state=r3EJIGITeKqK389gF6W842QQdJSP9J&access_type=offline&include_granted_scopes=true&prompt=consent
-#https://d9ff-198-255-250-229.ngrok-free.app/services/oauth/calendar/callback?state=r3EJIGITeKqK389gF6W842QQdJSP9J&code=4/0AZEOvhUyzUpVtJtI0kRSrGo_RCiEw47mdDYR0KId50kBDLI9scXvkY91mqbMqRvdKRSZXQ&scope=https://www.googleapis.com/auth/calendar
-#'https://d9ff-198-255-250-229.ngrok-free.app/services/oauth/calendar/callback?state=KMGxZ7EWeN2tMjsStRsFatQ7faUKwI&code=4/0AZEOvhUYjjvOFQPCnh1PWcrVguSarwT4LkGM1xY5sKOloYcIjCGh5ck6dsqJF7ZlvAccYw&scope=https://www.googleapis.com/auth/calendar'
 @gcal_bp.route("/services/oauth/calendar/callback", methods=["GET"])
 def oauth_callback():
     logger.info("Google Calendar OAuth callback received")
     try:
         user_id = session.get('user_id')
-        user = User(user_id) if user_id else None
+        user = User.lookup_by_user_id(user_id) if user_id else None
         google_client = GoogleCalendarClient(f"users/{user_id}.json", ['https://www.googleapis.com/auth/calendar'], user)
         config = google_client.get_client_config_from_env()
         redirect_url = config['web']['redirect_uris'][0]
@@ -71,7 +68,7 @@ def oauth_callback():
 def get_calendar_events():
     try:
         user_id = session.get('user_id')
-        user = User(user_id) if user_id else None
+        user = User.lookup_by_user_id(user_id) if user_id else None
         google_client = GoogleCalendarClient(f"users/{user_id}.json", ['https://www.googleapis.com/auth/calendar'], user)
         google_client.initialize_client(user_id)
         # Use the client now to perform operations on the calendar:

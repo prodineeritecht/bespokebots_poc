@@ -2,9 +2,15 @@ import uuid
 import json
 import os
 import glob
+import logging
+
+logging.basicConfig(level=logging.INFO)
+# Initialize the logger
+logger = logging.getLogger(__name__)
 
 class User:
-    def __init__(self, user_id=None):
+    def __init__(self,user_name, user_id=None):
+        self.user_name = user_name
         self.user_id = user_id or str(uuid.uuid4())
         self.file_path = f"users/{self.user_id}.json"
         self.state = None
@@ -53,16 +59,33 @@ class User:
         self._save()
 
     @staticmethod
+    def lookup_by_user_id(user_id):
+        return User.find_user_by_field('user_id', user_id)
+    
+    @staticmethod
     def lookup_by_slack_id(slack_user_id):
+        return User.find_user_by_field('slack_user_id', slack_user_id)  
+    
+    @staticmethod
+    def lookup_by_user_name(user_name): 
+        return User.find_user_by_field('user_name', user_name)
+
+    @staticmethod
+    def find_user_by_field(field, value):
         user_files = glob.glob('users/*.json')
+        logger.info(f"Found {len(user_files)} user files")
         for user_file in user_files:
+            logger.info(f"Checking {user_file}")
             with open(user_file, 'r') as f:
                 data = json.load(f)
-                if data.get('slack_user_id') == slack_user_id:
+                logger.info(f"Checking {data.get(field)} against {value}")
+                if data.get(field) == value:
                     # Reconstruct the User object and return it
+                    logger.info(f"Found a match for {value}")
                     user_id = os.path.basename(user_file).replace('.json', '')
-                    user = User()
+                    user = User(data.get('user_name'))
                     user.user_id = user_id #data.get('user_id')
+                    user.user_name = data.get('user_name')
                     user.credentials = data.get('credentials')
                     user.state = data.get('state')
                     user.slack_user_id = data.get('slack_user_id')
@@ -74,6 +97,7 @@ class User:
     def _save(self):
         data = {
             'user_id': self.user_id,
+            'user_name': self.user_name,
             'state': self.state,
             'credentials': self.credentials,
             'slack_token': self.slack_token,

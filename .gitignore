@@ -121,4 +121,4 @@ dmypy.json
 # Ignore sensitive files
 credentials.json
 token.json
-
+users/*.json

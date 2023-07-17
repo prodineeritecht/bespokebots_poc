@@ -7,6 +7,7 @@ import ptvsd
 from flask import Flask, jsonify, request, session
 from slack_bolt import App, Ack
 from slack_bolt.adapter.flask import SlackRequestHandler
+from bespokebots.auth_blueprints.routes import auth_bp
 from bespokebots.slack_blueprints.routes import slack_bp
 from bespokebots.gcal_blueprints.routes import gcal_bp
 from bespokebots.gcal_blueprints.routes import create_authenticated_client
@@ -54,13 +55,14 @@ def create_app():
 
     app.config["SECRET_KEY"] = "42b612974f9b632ffc0b1da747df528a8d3c66c73d741f6eef8b577d66632509"
    
-    @app.before_request
-    def load_user_into_session():
-        logger.info(f"Calling before_request handler: load_user_into_session session[user_id]: {session.get('user_id')}")
-        if 'user_id' not in session:
-            user = load_or_create_user()
-            session['user_id'] = user.user_id
+    # @app.before_request
+    # def load_user_into_session():
+    #     logger.info(f"Calling before_request handler: load_user_into_session session[user_id]: {session.get('user_id')}")
+    #     if 'user_id' not in session:
+    #         user = load_or_create_user()
+    #         session['user_id'] = user.user_id
 
+    app.register_blueprint(auth_bp)
     app.register_blueprint(slack_bp)
     app.register_blueprint(gcal_bp)
     logger.info("Slack and GCal blueprints registered, Flask App created")
@@ -71,3 +73,6 @@ def create_app():
 
 if __name__ == "__main__":
     create_app().run(debug=True)
+
+
+    
