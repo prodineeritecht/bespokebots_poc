@@ -9,7 +9,7 @@ from bespokebots.services.google_calendar import (
     GoogleCalendarBusyEntry,
     GoogleCalendarEvent
 )
-
+from bespokebots.dao.database import db
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -82,8 +82,9 @@ def build_calendar_and_feedback_clients(credentials: Optional[Credentials] = Non
     # Import the necessary modules
     InstalledAppFlow = import_google_auth_oauthlib_flow()
     Credentials, Request = import_google_auth()
+    from bespokebots.services.user_service import UserService
     credentials = credentials or DEFAULT_CLIENT_SECRETS_FILE
     scopes = scopes or DEFAULT_SCOPES
-    client = GoogleCalendarClient(credentials, scopes)
-    #client.authenticate()
+    user_service = UserService(db.session)
+    client = GoogleCalendarClient(credentials, scopes, user_service=user_service)
     return client

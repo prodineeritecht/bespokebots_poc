@@ -7,7 +7,7 @@ from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
     CallbackManagerForToolRun,
 )
-
+from bespokebots.dao.database import db
 from bespokebots.services.agent.google_calendar_tools.base import GoogleCalendarBaseTool
 from bespokebots.services.google_calendar import (
     GoogleCalendarEvent
@@ -86,6 +86,7 @@ class GoogleCalendarCreateEventTool(GoogleCalendarBaseTool):
     ) -> dict:
         try:
             #ensure the gcal_client has been authenticated
+            sesh = db.session
             self.gcal_client.initialize_client(user_id)
 
             tz = ZoneInfo(timezone)

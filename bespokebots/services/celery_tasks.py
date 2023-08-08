@@ -8,7 +8,7 @@ from celery import Celery
 from typing import Optional
 import logging
 from bespokebots.services.slack.slack_service import SlackService
-from bespokebots.services.agent import BespokeBotAgent
+from bespokebots.services.agent.bespoke_bot_agent import BespokeBotAgent
 from bespokebots.services.chains.templates import (
     STRUCTURED_CHAT_PROMPT_PREFIX, 
     STRUCTURED_CHAT_PROMPT_SUFFIX
@@ -33,8 +33,9 @@ slack_app = App(
     signing_secret= os.environ.get("BESPOKE_BOTS_SLACK_SIGNING_SECRET")
 )
 
-agent = BespokeBotAgent(ai_name="BespokeBot")
-agent.initialize_agent(prefix=STRUCTURED_CHAT_PROMPT_PREFIX, suffix=STRUCTURED_CHAT_PROMPT_SUFFIX)
+
+# agent = BespokeBotAgent(ai_name="BespokeBot")
+# agent.initialize_agent(prefix=STRUCTURED_CHAT_PROMPT_PREFIX, suffix=STRUCTURED_CHAT_PROMPT_SUFFIX)
 
         
 @celery.task
@@ -42,6 +43,8 @@ def process_slack_message(user_id: str, channel_id: str, text: str):
     # Here is where you will do your long-running task processing the slack message
     user_message = None
     try:
+        #BespokeBotAgent is implemented as a singleton, so get_agent will always return the same initialized instance
+        agent = BespokeBotAgent.get_agent(prefix=STRUCTURED_CHAT_PROMPT_PREFIX, suffix=STRUCTURED_CHAT_PROMPT_SUFFIX)
         logger.info(f"Celery Task for slack message from user {user_id} in channel {channel_id}")
         slack_handlers = SlackService(slack_app, logger)
         user_message = agent.run_agent(user_id,text)

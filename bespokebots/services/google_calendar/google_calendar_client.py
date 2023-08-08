@@ -1,5 +1,6 @@
 import os
-from google_auth_oauthlib.flow import InstalledAppFlow, Flow 
+import jwt
+from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
@@ -9,8 +10,17 @@ from dateutil.parser import parse
 import json
 import pickle
 import logging
-from bespokebots.models.user import User
-#from bespokebots.services.google_calendar.google_calendar_client import credentials_to_dict
+from typing import List, Optional, Type
+from bespokebots.dao import (
+    User,
+    UserCredentials,
+    ServiceProviders,
+    CredentialStatus,
+    OAuthStateToken,
+)
+
+# from bespokebots.services.google_calendar.google_calendar_client import credentials_to_dict
+from bespokebots.services.user_service import UserService
 
 from bespokebots.services.google_calendar.google_calendar_busy_entry import (
     GoogleCalendarBusyEntry,
@@ -30,14 +40,23 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleCalendarClient:
-    def __init__(self, credentials_file, scopes, user: User = None):
+    def __init__(
+        self,
+        credentials_file,
+        scopes,
+        user: User = None,
+        user_service: UserService = None,
+        flow: Flow = None,  # adding this because it seems like mocks are fucked
+    ):
         self.user = user
+        self.user_service = user_service
         self.credentials_file = credentials_file
         self.scopes = scopes
         self.creds = None
         self.service = None
         self.calendar_list = []
         self.environment = os.environ.get("ENVIRONMENT", "localdev")
+        self.flow = flow
 
     def authenticate(self):
         if os.path.exists("token.json"):
@@ -80,48 +99,84 @@ class GoogleCalendarClient:
             self._build_service()
         return self.service
 
-    #None of the previous methods depend on the User object.  The following auth methods do.
-    #Functions for supporting the full Oauth2 flow
+    def _build_flow(self, scopes, redirect_uri, state_token=None):
+        if not self.flow:
+            self.flow = Flow.from_client_config(
+                self.get_client_config_from_env(),
+                scopes=scopes,
+                redirect_uri=redirect_uri,
+                state=state_token,
+            )
+        return self.flow
+
+    # None of the previous methods depend on the User object.  The following auth methods do.
+    # Functions for supporting the full Oauth2 flow
     # New method to initiate OAuth flow
-    def initiate_oauth_flow(self, redirect_uri, user):
-        
-        self.flow = Flow.from_client_config(
-            self.get_client_config_from_env(), 
-            scopes=self.scopes,
-            redirect_uri=redirect_uri
+    def initiate_oauth_flow(self, redirect_uri):
+        self.flow = self._build_flow(self.scopes, redirect_uri)
+
+        creds, state_token = self.user_service.initialize_user_credentials(
+            self.user,
+            ServiceProviders.GOOGLE.value,
+            service_user_id="not_yet_activated",
         )
+
         authorization_url, state = self.flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true',
-            prompt='consent'
+            access_type="offline",
+            include_granted_scopes="true",
+            state=state_token,
+            prompt="consent",
         )
-        user.save_state(state)
+
         return authorization_url
-    
+
     # New method to authenticate using OAuth flow5
-    def authenticate_oauth(self, authorization_response, redirect_uri):
-        state = self.user.state
-        flow = Flow.from_client_config(
-            self.get_client_config_from_env(),
-            scopes=self.scopes,
-            state=state,
-            redirect_uri=redirect_uri
+    def authenticate_oauth(self, authorization_response, redirect_uri, state_token):
+        inactive_credentials = self.user_service.get_user_credentials(
+            self.user,
+            ServiceProviders.GOOGLE.value,
+            service_user_id="not_yet_activated",
         )
-        flow.fetch_token(authorization_response=authorization_response)
-        self.user.credentials = self.credentials_to_dict(flow.credentials)
-        self.user._save()
-        self.creds = Credentials.from_authorized_user_info(self.user.credentials)
+        self.flow = self._build_flow(self.scopes, redirect_uri, state_token)
+
+        self.flow.fetch_token(authorization_response=authorization_response)
+        id_token = self.flow.credentials.id_token
+        id_token_bytes = id_token.encode("utf-8")
+        decoded = jwt.decode(
+            id_token_bytes, algorithms="RS256", options={"verify_signature": False}
+        )
+        service_user_id = decoded["sub"]
+
+        self.user_service.activate_user_credentials(
+            self.user,
+            state_token,
+            ServiceProviders.GOOGLE.value,
+            service_user_id,
+            json.dumps(self.credentials_to_dict(self.flow.credentials)),
+        )
+
+        updated_creds = self.user_service.get_user_credentials(
+            self.user, ServiceProviders.GOOGLE.value, service_user_id=service_user_id
+        )
+        credentials = json.loads(self.user_service.decrypt(updated_creds.credentials))
+        self.creds = Credentials.from_authorized_user_info(credentials)
         self._build_service()
 
-     
     def initialize_client(self, user_id):
-        self.user = User.lookup_by_user_id(user_id)
-        self.creds = Credentials.from_authorized_user_info(self.user.credentials)
+        self.user = UserService.lookup_by_user_id(user_id)
+        user_credentials = self.user_service.get_user_credentials(
+            self.user, ServiceProviders.GOOGLE.value
+        )
+        self.creds = Credentials.from_authorized_user_info(
+            self.user_service.decrypt(user_credentials.credentials)
+        )
         self._build_service()
-        
-    
+
     def get_client_config_from_env(self):
-        logger.info("Getting client config from environment. env[REDIRECT_URIS] = %s", os.getenv("REDIRECT_URIS"))
+        logger.info(
+            "Getting client config from environment. env[REDIRECT_URIS] = %s",
+            os.getenv("REDIRECT_URIS"),
+        )
         web_info = {
             "client_id": os.getenv("CLIENT_ID"),
             "project_id": os.getenv("PROJECT_ID"),
@@ -129,19 +184,22 @@ class GoogleCalendarClient:
             "token_uri": os.getenv("TOKEN_URI"),
             "auth_provider_x509_cert_url": os.getenv("AUTH_PROVIDER_X509_CERT_URL"),
             "client_secret": os.getenv("CLIENT_SECRET"),
-            "redirect_uris": os.getenv("REDIRECT_URIS").split(','),  # assuming comma-separated values
+            "redirect_uris": os.getenv("REDIRECT_URIS").split(
+                ","
+            ),  # assuming comma-separated values
         }
         return {"web": web_info}
-    
+
     def credentials_to_dict(self, credentials):
-        return {'token': credentials.token,
-                'refresh_token': credentials.refresh_token,
-                'token_uri': credentials.token_uri,
-                'client_id': credentials.client_id,
-                'client_secret': credentials.client_secret,
-                'scopes': credentials.scopes}
-            
-    
+        return {
+            "token": credentials.token,
+            "refresh_token": credentials.refresh_token,
+            "token_uri": credentials.token_uri,
+            "client_id": credentials.client_id,
+            "client_secret": credentials.client_secret,
+            "scopes": credentials.scopes,
+        }
+
     # Functions related to working with the GCal API
     def get_calendar_list(self) -> list[GoogleCalendarInstance]:
         """Retrieve a list of calendars"""

@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 from bespokebots.services.agent.google_calendar_tools import GoogleCalendarViewEventsTool
 
 
-def test_view_events_with_specified_range(create_future_event):
+def test_view_events_with_specified_range(db_session,create_future_event):
     """Test the view events tool with a specified time range."""
     #set up the beginning and end date, the timezone must be specified.
     timezone = ZoneInfo("America/New_York")
@@ -28,7 +28,7 @@ def test_view_events_with_specified_range(create_future_event):
     )
 
 
-def test_view_events_with_no_specified_range():
+def test_view_events_with_no_specified_range(db_session):
     """Test the view events tool with no specified time range."""
     tool = GoogleCalendarViewEventsTool() # Create the tool
     events = tool.run({"calendar_id": "primary"})

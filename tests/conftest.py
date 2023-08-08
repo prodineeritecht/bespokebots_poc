@@ -9,16 +9,16 @@ import pytest
 
 from langchain.callbacks import get_openai_callback
 from langchain.llms.fake import FakeListLLM
-from bespokebots.services.agent import BespokeBotAgent
-from bespokebots.services.chains.templates import (
-    STRUCTURED_CHAT_PROMPT_PREFIX, 
-    STRUCTURED_CHAT_PROMPT_SUFFIX
-    )
+
 from langchain.agents.structured_chat.prompt import SUFFIX
 from langchain.docstore import InMemoryDocstore
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 import faiss
+
+from app import create_app
+from bespokebots.dao.database import db
+
 
 from bespokebots.services.google_calendar import (
     GoogleCalendarClient,
@@ -33,9 +33,58 @@ from bespokebots.services.chains.output_parsers import (
     CalendarAnalysisResponse
 )
 
+from bespokebots.dao import User, ServiceProviders, CredentialStatus, OAuthStateToken
+from bespokebots.dao.user_credentials import UserCredentials
+
 from bespokebots.services.agent.todoist_tools import (CreateTaskTool, 
                                                       ViewProjectsTool,
                                                       CreateProjectTool)
+
+from bespokebots.services.agent.bespoke_bot_agent import BespokeBotAgent
+from bespokebots.services.chains.templates import (
+    STRUCTURED_CHAT_PROMPT_PREFIX, 
+    STRUCTURED_CHAT_PROMPT_SUFFIX
+    )
+
+
+@pytest.fixture(scope='session')
+def app_fixture():
+    """Session-wide test `Flask` application."""
+    test_config = {
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'
+    }
+    app = create_app(test_config=test_config)
+    return app
+
+@pytest.fixture(scope='session')
+def _db(app_fixture):
+    """Session-wide test database."""
+    with app_fixture.app_context():
+        db.create_all()
+        yield db
+        db.drop_all()
+
+@pytest.fixture(scope='function')
+def db_session(_db, app_fixture):
+    with app_fixture.app_context():
+        _db.create_all()
+        yield _db.session
+        _db.session.close()
+        _db.drop_all()
+
+@pytest.fixture(scope="function")
+def test_user(db_session):
+    user = User(username="test_user")
+    db_session.add(user)
+    db_session.commit()
+    yield user
+
+    db_session.delete(user)
+    db_session.commit()
+
+
+
 
 @pytest.fixture
 def create_task_tool():
@@ -296,5 +345,8 @@ def create_calendar_event(
     response = google_calendar_client.create_event(calendar_id, event)
 
     return google_calendar_client, response
+
+
+
 
 

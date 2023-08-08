@@ -9,7 +9,7 @@ from bespokebots.services.agent.google_calendar_tools import (
 )
 
 
-def test_update_an_event(create_future_event):
+def test_update_an_event(db_session, create_future_event):
     """Test the update event tool."""
 
     client, future_event = create_future_event(
@@ -34,7 +34,7 @@ def test_update_an_event(create_future_event):
     assert event["description"] == "This event created by Tom, the AI Assistant"
 
 
-def test_update_an_event_with_dates_and_summary(create_future_event):
+def test_update_an_event_with_dates_and_summary(db_session, create_future_event):
     """Test the update event tool."""
     # set up the beginning and end date, the timezone must be specified.
     timezone = ZoneInfo("America/New_York")

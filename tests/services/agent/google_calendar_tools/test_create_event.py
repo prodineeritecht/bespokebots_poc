@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from bespokebots.services.agent.google_calendar_tools import GoogleCalendarCreateEventTool
 
-def test_create_an_event():
+def test_create_an_event(app_fixture, _db, db_session):
     """Test the create event tool."""
     #set up the beginning and end date, the timezone must be specified.
     timezone = ZoneInfo("America/New_York")
@@ -15,7 +15,7 @@ def test_create_an_event():
     end_time = (now + datetime.timedelta(days=1, hours=1)).isoformat()
 
     tool = GoogleCalendarCreateEventTool() # Create the tool
-    event = tool.run({"calendar_id": "primary", "summary": "Test Event", "timezone": "America/New_York", "start_time": start_time, "end_time": end_time})
+    event = tool.run({"calendar_id": "primary","user_id":"useruseruser", "summary": "Test Event", "timezone": "America/New_York", "start_time": start_time, "end_time": end_time})
 
     #remove the event we created
     tool.gcal_client.delete_event("primary", event["id"])

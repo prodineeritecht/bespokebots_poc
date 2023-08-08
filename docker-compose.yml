@@ -1,4 +1,7 @@
-version: '3.8'
+version: '3.9'
+volumes:
+  postgres_data:
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -8,6 +11,17 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+
+  botsdb:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: databoi
+      POSTGRES_DB: bespokebots
+      POSTGRES_HOST: botsdb
+      DATABASE_URL: postgresql+psycopg2://postgres:databoi@botsdb:5432/bespokebots
 
   app:
     build: .
@@ -41,6 +55,12 @@ services:
       - AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
       - CLIENT_SECRET=${CLIENT_SECRET}
       - REDIRECT_URIS=${REDIRECT_URIS}
+      - DATABASE_URL=postgresql+psycopg2://postgres:databoi@botsdb:5432/bespokebots
+      - USER_CREDENTIALS_KEY=${USER_CREDENTIALS_KEY}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=databoi
+      - POSTGRES_DB=bespokebots
+      - POSTGRES_HOST=botsdb
 
   worker:
     build: .
@@ -68,4 +88,9 @@ services:
       - AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
       - CLIENT_SECRET=${CLIENT_SECRET}
       - REDIRECT_URIS=${REDIRECT_URIS}
+      - USER_CREDENTIALS_KEY=${USER_CREDENTIALS_KEY}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=databoi
+      - POSTGRES_DB=bespokebots
+      - POSTGRES_HOST=botsdb
 

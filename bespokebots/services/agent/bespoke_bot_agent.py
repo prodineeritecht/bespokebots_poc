@@ -44,6 +44,8 @@ from langchain.tools.file_management.read import ReadFileTool
 from langchain.tools.file_management.write import WriteFileTool
 from langchain.utilities import SerpAPIWrapper
 
+from bespokebots.dao.database import db
+
 from bespokebots.services.agent.google_calendar_tools import (
     GoogleCalendarCreateEventTool,
     GoogleCalendarViewEventsTool,
@@ -78,8 +80,18 @@ from bespokebots.services.agent.todoist_tools import (
 # 7. Execute the agent's LLMChain in a loop until the user goal is met
 #   a. The loop will also be built with either a timeout or a max number of iterations
 
+class Singleton:
+    _instances = {}
 
-class BespokeBotAgent:
+    @classmethod
+    def instance(cls):
+        if cls not in cls._instances:
+            cls._instances[cls] = cls()
+        return cls._instances[cls]
+
+
+
+class BespokeBotAgent(Singleton):
     """The BespokeBotAgent class is responsible for handling the agent mechanics required for the digital assistant.
     This class is really a wrapper around the StructuredChatAgent class from langchain. It is responsible for
     setting up the tools, the LLMChain, and the agent itself. It also handles the execution of the agent.
@@ -103,30 +115,11 @@ class BespokeBotAgent:
     os.environ["LANGCHAIN_TRACING"] = "false"
     langchain.debug = True
     serp_api_key = os.getenv("SERPAPI_API_KEY")
-    # Set up the tools for the agent
-    #search = SerpAPIWrapper()
-    tools = [
-        # Tool(
-        #     name="search",
-        #     func=search.run,
-        #     description="useful for when you need to answer questions about current events. You should ask targeted questions",
-        # ),
-        GoogleCalendarCreateEventTool(),
-        GoogleCalendarViewEventsTool(),
-        GoogleCalendarUpdateEventTool(),
-        GoogleCalendarDeleteEventTool(),
-        CalendarDataAnalyzerTool(return_direct = True),
-        ViewProjectsTool(),
-        CreateProjectTool(),
-        CreateTaskTool(),
-        CloseTaskTool(),
-        GetProjectIdsTool(),
-        FindTasksWithFilterTool(),
-    ]
+    
 
     def __init__(
         self,
-        ai_name: str,
+        ai_name: str = "BespokeBot",
         llm_model: str = "gpt-4",
         temperature: float = 0.0,
         memory: VectorStoreRetriever = None,
@@ -149,6 +142,41 @@ class BespokeBotAgent:
         self.executor = None
         self.prefix = None
         self.suffix = None
+        self.initialized = False
+
+    def _setup_tools(self):
+        # Set up the tools for the agent
+        #search = SerpAPIWrapper()
+        tools = [
+            # Tool(
+            #     name="search",
+            #     func=search.run,
+            #     description="useful for when you need to answer questions about current events. You should ask targeted questions",
+            # ),
+            GoogleCalendarCreateEventTool(),
+            GoogleCalendarViewEventsTool(),
+            GoogleCalendarUpdateEventTool(),
+            GoogleCalendarDeleteEventTool(),
+            CalendarDataAnalyzerTool(return_direct = True),
+            ViewProjectsTool(),
+            CreateProjectTool(),
+            CreateTaskTool(),
+            CloseTaskTool(),
+            GetProjectIdsTool(),
+            FindTasksWithFilterTool(),
+        ]
+        return tools
+    
+    def is_initialized(self):
+        return self.initialized
+
+    @staticmethod
+    def get_agent(prefix, suffix, input_variables: List[str] = None):
+        agent = BespokeBotAgent.instance()
+        if not agent.is_initialized():
+            agent.initialize_agent(prefix=prefix, suffix=suffix, input_variables=input_variables)
+            agent.initialized = True
+        return agent
 
     # def estimate_tokens(self, message: str) -> int:
     #     """Estimate the number of tokens required to generate a response."""
@@ -162,7 +190,7 @@ class BespokeBotAgent:
         self, prefix: str, suffix: str, input_variables: List[str] = None
     ) -> AgentExecutor:
         """Initialize the agent with the tools and prompt."""
-            
+        self.tools = self._setup_tools()
         if self.additional_tools:
             self.tools.extend(self.additional_tools)
 
