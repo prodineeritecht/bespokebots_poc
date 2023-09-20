@@ -26,17 +26,21 @@ class User(db.Model):
     oauth_state_tokens = db.relationship("OAuthStateToken", backref="user", lazy=True, cascade="all,delete")
 
     @classmethod
-    def find_by_user_name(cls, username):
-        return cls.query.filter_by(username=username).first()
+    def find_by_user_name(cls, username, session=None):
+        use_session = session or db.session
+        return use_session.query(cls).filter_by(username=username).first()
 
     @classmethod
-    def find_by_field_name(cls, field_name, field_value):
-        return cls.query.filter(getattr(cls, field_name) == field_value).first()
+    def find_by_field_name(cls, field_name, field_value, session=None):
+        use_session = session or db.session
+        return use_session.query(cls).filter(getattr(cls, field_name) == field_value).first()
 
     @classmethod
-    def find_by_credential_service_id(cls, service_name, service_user_id):
+    def find_by_credential_service_id(cls, service_name, service_user_id, session=None):
+        use_session = session or db.session
+        
         return (
-            cls.query.join(UserCredentials)
+            use_session.query(cls).join(UserCredentials)
             .filter(UserCredentials.service_name == service_name)
             .filter(UserCredentials.service_user_id == service_user_id)
             .first()

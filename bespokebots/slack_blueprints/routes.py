@@ -1,5 +1,8 @@
 from flask import Blueprint, jsonify, request, session, redirect, url_for, make_response
 from flask import Response
+from flask import current_app as flask_app
+import html
+import json
 import os
 import uuid
 import logging
@@ -7,7 +10,7 @@ from slack_bolt import App, Ack
 from slack_sdk.oauth import AuthorizeUrlGenerator
 from slack_bolt.adapter.flask import SlackRequestHandler
 from slack_sdk.web import WebClient
-from bespokebots.services.celery_tasks import slack_app, process_slack_message
+from bespokebots.services.celery_tasks import slack_app, process_slack_message, slack_env_vars
 from bespokebots.dao.database import db
 from bespokebots.dao import ServiceProviders, OAuthStateToken
 
@@ -19,60 +22,73 @@ logger = logging.getLogger(__name__)
 
 slack_bp = Blueprint("slack", __name__)
 handler = SlackRequestHandler(slack_app)
-oauth_scopes = "chat:write,app_mentions:read,channels:history,im:read"
+
 
 
 # slack OAuth handling starts here
 @slack_bp.route("/services/oauth/slack/connect", methods=["GET"])
 def oauth_connect_slack():
     from bespokebots.services.user_service import UserService
-
+    
     user_service = UserService(db.session)
     user_id = session.get("user_id")
+    logger.info(f"Slack OAuth connect request received for user_id: {user_id}")
+
+    if not user_id:
+        return make_response("No user_id in session, please log in first", 400)
+    
     user = UserService.lookup_by_user_id(user_id) if user_id else None
-    client_id = slack_app.client_id
-    scope = oauth_scopes
-    state = user_service.create_state_token(user)
+    client_id = slack_env_vars.get("client_id")
+    scope = slack_env_vars.get("bot_scopes")
+    logger.info(f"Configured bot scopes: {scope}")
+    user_scopes = slack_env_vars.get("user_scopes")
+    logger.info(f"Configured user scopes: {user_scopes}")
+    state = user_service.create_state_token(user.id)
     redirect_uri = url_for("slack.oauth_callback_slack", _external=True)
     authorize_url = AuthorizeUrlGenerator(
         client_id=client_id,
-        scopes=scope.split(" "),
-        state=state.value,
+        scopes=scope,
+        user_scopes=user_scopes,
         redirect_uri=redirect_uri,
-    ).generate()
+    ).generate(state.value)
 
+    logger.info(f"Generated authorize_url: {authorize_url}")
     user_service.initialize_user_credentials(
         user,
-        ServiceProviders.SLACK,
+        ServiceProviders.SLACK.value,
         service_user_id="not_yet_activated",
         state_token=state,
     )
-
+    logger.info(f"UserCredentials record created for user_id: {user.id}, redirecting use to Slack's authorize_url")
     return redirect(authorize_url)
 
 
 @slack_bp.route("/services/oauth/slack/callback", methods=["GET"])
 def oauth_callback_slack():
     from bespokebots.services.user_service import UserService
-
+    logger.info("Slack OAuth callback request received")
     user_service = UserService(db.session)
-    client_id = slack_app.client_id
-    client_secret = slack_app.client_secret
+    client_id = slack_env_vars.get("client_id")
+    client_secret = slack_env_vars.get("client_secret")
     redirect_uri = url_for("slack.oauth_callback_slack", _external=True)
     state = request.args.get("state")
-    user = user_service.lookup_by_state_token(state)
+    user = user_service.lookup_user_by_state_token(state)
+    logger.info(f"Slack OAuth callback with State: {state} received for user_id: {user.id}")
     
     if "code" in request.args:
         # Verify the state parameter
+        logger.info(f"Slack OAuth callback, validating state token: {state}")
         if user_service.validate_state_token(request.args["state"]):
             client = WebClient()  # no prepared token needed for this
             # Complete the installation by calling oauth.v2.access API method
+            logger.info(f"Slack OAuth callback, retrieving access token from slack for user_id: {user.id} with oauth state token: {state}")
             oauth_response = client.oauth_v2_access(
                 client_id=client_id,
                 client_secret=client_secret,
                 redirect_uri=redirect_uri,
                 code=request.args["code"],
             )
+            logger.info(f"Slack OAuth callback, successfully retrieved oauth response from slack for user_id: {user.id} with oauth state token: {state}")
             # pull out the Slack specific fields to encrypt as the
             # credentials object in the UserCredentials record
             installed_enterprise = oauth_response.get("enterprise") or {}
@@ -114,14 +130,17 @@ def oauth_callback_slack():
                 "token_type": oauth_response.get("token_type"),
             }
 
-            user_service.activate_user_credentials(
+            logger.info(f"Slack OAuth callback, activating user credentials for user_id: {user.id} with oauth state token: {state}")
+
+            user_creds = user_service.activate_user_credentials(
                 user,
                 state,
                 ServiceProviders.SLACK.value,
                 installation_credentials["user_id"],
-                installation_credentials,
+                json.dumps(installation_credentials),
             )
 
+            logger.info(f"Slack OAuth callback, user credentials activated for user_id: {user.id} with service_user_id: {user_creds.service_user_id} in workspace: {user_creds.service_workspace_name}")
             return "Success! Bot installed."
 
         else:
@@ -144,16 +163,20 @@ def slack_events():
 
 @slack_app.event("message")
 def process_message_events(event, say):
+    from app import get_db_session_maker
     # put the message onto the celery queue
     logger.info(f"Processing slack event: {event}")
     from bespokebots.services.user_service import UserService
 
     try:
+        Session = get_db_session_maker()
+        db_sesh = Session()
         say("Got your message! Reading it now...")
-        user = UserService.lookup_by_slack_id(event["user"])
-        logger.info(f"Processing slack message from user: {user.user_id}")
+        user = UserService.lookup_by_service_user_id(ServiceProviders.SLACK.value,event["user"],db_sesh)
+        Session.remove()
+        logger.info(f"Processing slack message from user: {user.id}")
 
-        process_slack_message.delay(user.user_id, event["channel"], event["text"])
+        process_slack_message.delay(user.id, event["channel"], event["text"])
 
     except Exception as e:
         logger.exception(f"Error processing slack message: %s", e)

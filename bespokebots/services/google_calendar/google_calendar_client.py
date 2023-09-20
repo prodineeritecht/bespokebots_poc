@@ -11,6 +11,8 @@ import json
 import pickle
 import logging
 from typing import List, Optional, Type
+from bespokebots.dao.database import db, create_session
+
 from bespokebots.dao import (
     User,
     UserCredentials,
@@ -132,11 +134,7 @@ class GoogleCalendarClient:
 
     # New method to authenticate using OAuth flow5
     def authenticate_oauth(self, authorization_response, redirect_uri, state_token):
-        inactive_credentials = self.user_service.get_user_credentials(
-            self.user,
-            ServiceProviders.GOOGLE.value,
-            service_user_id="not_yet_activated",
-        )
+        
         self.flow = self._build_flow(self.scopes, redirect_uri, state_token)
 
         self.flow.fetch_token(authorization_response=authorization_response)
@@ -163,12 +161,29 @@ class GoogleCalendarClient:
         self._build_service()
 
     def initialize_client(self, user_id):
-        self.user = UserService.lookup_by_user_id(user_id)
-        user_credentials = self.user_service.get_user_credentials(
-            self.user, ServiceProviders.GOOGLE.value
+        logger.info(f"Initializing Google Calendar Client for UserID={user_id}")
+        
+        # if not self.user_service:
+        #     self.user_service = UserService()
+        
+        # if self.user_service.session and self.user_service.session.is_active:
+        #     db_session = self.user_service.session
+        # else:
+        Session = create_session()
+        db_session = Session()
+        user_service = UserService(db_session)
+        user = UserService.lookup_by_user_id(user_id, db_session)
+        logger.info(f"Found User: {self.user}")
+        user_credentials = user_service.get_user_credentials(
+            user, ServiceProviders.GOOGLE.value
         )
+        db_session.close()
+        
+        logger.info(f"Found User credentials for UserID={user_credentials.user_id}")
+        
+        self.user = user
         self.creds = Credentials.from_authorized_user_info(
-            self.user_service.decrypt(user_credentials.credentials)
+            json.loads(self.user_service.decrypt(user_credentials.credentials))
         )
         self._build_service()
 

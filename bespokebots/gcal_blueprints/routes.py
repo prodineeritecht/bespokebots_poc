@@ -56,7 +56,7 @@ def oauth_callback():
     
     try:
         logger.info("Google Calendar OAuth callback received, looking up user with state_token: %s", state_token)
-        user = user_service.lookup_by_state_token(state_token)
+        user = UserService.lookup_user_by_state_token(state_token)
         logger.info(f"Found User ID: {user.id} for state_token: {state_token}")
         user_id = user.id
         google_client = GoogleCalendarClient(

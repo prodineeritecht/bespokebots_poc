@@ -86,7 +86,7 @@ class GoogleCalendarCreateEventTool(GoogleCalendarBaseTool):
     ) -> dict:
         try:
             #ensure the gcal_client has been authenticated
-            sesh = db.session
+            
             self.gcal_client.initialize_client(user_id)
 
             tz = ZoneInfo(timezone)

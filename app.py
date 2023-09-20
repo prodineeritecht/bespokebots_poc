@@ -3,15 +3,12 @@
 import os
 import glob
 import logging
-import ptvsd
+
 from flask import Flask, jsonify, request, session
-from slack_bolt import App, Ack
-from slack_bolt.adapter.flask import SlackRequestHandler
 from bespokebots.auth_blueprints.routes import auth_bp
 from bespokebots.slack_blueprints.routes import slack_bp
 from bespokebots.gcal_blueprints.routes import gcal_bp
-from bespokebots.gcal_blueprints.routes import create_authenticated_client
-from bespokebots.dao.database import db
+from bespokebots.dao.database import db, init_db
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -22,16 +19,21 @@ from flask_migrate import Migrate
 # Initialize the logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+Session = None
 
+def get_db_session_maker():
+    return Session
 
 def create_app(test_config=None):
+    global Session
 # Create a Flask web server from the 'app' module name
     app = Flask(__name__)
 
     if os.environ.get('FLASK_ENV') == 'development':
         if os.environ.get('ENABLE_VSCODE_DEBUGGER') == 'true':
-            ptvsd.enable_attach(address=('0.0.0.0', 5678), redirect_output=True)
-            print("VS Code debugging enabled.")
+            #import ptvsd
+            #ptvsd.enable_attach(address=('0.0.0.0', 5678), redirect_output=True)
+            print("VS Code debugging DISABLED.")
 
     app.wsgi_app = ProxyFix(app.wsgi_app) # Fix for running behind a reverse proxy
 
@@ -41,7 +43,7 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
-    db.init_app(app)
+    Session = init_db(app)
     Migrate(app, db)
 
     app.register_blueprint(auth_bp)

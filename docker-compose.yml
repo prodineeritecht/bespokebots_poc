@@ -61,6 +61,7 @@ services:
       - POSTGRES_PASSWORD=databoi
       - POSTGRES_DB=bespokebots
       - POSTGRES_HOST=botsdb
+      - PYTHONPATH=/app
 
   worker:
     build: .
@@ -70,6 +71,8 @@ services:
     command: celery -A bespokebots.services.celery_tasks worker --loglevel=info --concurrency=1 --max-memory-per-child=256000
     depends_on:
       - rabbitmq
+    ports:
+      - 5679:5679
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -93,4 +96,5 @@ services:
       - POSTGRES_PASSWORD=databoi
       - POSTGRES_DB=bespokebots
       - POSTGRES_HOST=botsdb
+      - PYTHONPATH=/app
 

@@ -79,6 +79,10 @@ def build_calendar_and_feedback_clients(credentials: Optional[Credentials] = Non
                           scopes: Optional[List[str]] = None) -> GoogleCalendarClient:
     """Build a Google Calendar client."""
 
+#TODO: Now that we have the full OAuth flow working, relying on the InstalledAppFlow is no longer necessary. 
+# The tools should operate under the assumption that the user has already authenticated with Google and 
+# has valid credentials stored in the db. In this method, the code should probably focus on validating that
+# the credentials are still active and refreshing them if necessary.
     # Import the necessary modules
     InstalledAppFlow = import_google_auth_oauthlib_flow()
     Credentials, Request = import_google_auth()
