@@ -38,7 +38,7 @@ def create_app(test_config=None):
     app.wsgi_app = ProxyFix(app.wsgi_app) # Fix for running behind a reverse proxy
 
     if test_config is None:
-        app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:5432/{os.getenv('POSTGRES_DB')}"
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
         app.config["SECRET_KEY"] = "42b612974f9b632ffc0b1da747df528a8d3c66c73d741f6eef8b577d66632509"
     else:
         app.config.from_mapping(test_config)

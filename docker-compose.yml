@@ -13,7 +13,7 @@ services:
       - 5672:5672
 
   botsdb:
-    image: postgres:latest
+    image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -21,6 +21,7 @@ services:
       POSTGRES_PASSWORD: databoi
       POSTGRES_DB: bespokebots
       POSTGRES_HOST: botsdb
+      POSTGRES_PORT: 5432
       DATABASE_URL: postgresql+psycopg2://postgres:databoi@botsdb:5432/bespokebots
 
   app:
@@ -97,5 +98,6 @@ services:
       - POSTGRES_PASSWORD=databoi
       - POSTGRES_DB=bespokebots
       - POSTGRES_HOST=botsdb
+      - POSTGRES_PORT=5432
       - PYTHONPATH=/app
 
