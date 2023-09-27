@@ -61,6 +61,7 @@ services:
       - POSTGRES_PASSWORD=databoi
       - POSTGRES_DB=bespokebots
       - POSTGRES_HOST=botsdb
+      - POSTGRES_PORT=5432
       - PYTHONPATH=/app
 
   worker:
